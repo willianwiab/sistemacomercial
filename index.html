@@ -2560,7 +2560,11 @@ function gerarProposta(reabrir = false) {
 // ══════════════════════════════════════════
 let clientes = [];
 
-function salvarClientes() { fbSalvarDoc('comercial_clientes', 'dados', { lista: clientes }).catch(e => console.error(e)); }
+function salvarClientes() {
+  fbSalvarDoc('comercial_clientes', 'dados', { lista: clientes })
+    .then(() => console.log('✅ Clientes salvos:', clientes.length))
+    .catch(e => { console.error('❌ Erro clientes:', e); mostrarToast('Erro ao salvar cliente: ' + e.message, '#f44336'); });
+}
 
 function proximoCodigoCli() {
   const n = clientes.length + 1;
@@ -2869,7 +2873,9 @@ function salvarDescontoRapido(ref, totalOriginal) {
     nota: nota,
     dataUpdate: new Date().toLocaleDateString('pt-BR')
   };
-  fbSalvarDoc('comercial_crm', 'dados', { dados: crmData }).catch(e => console.error(e));
+  fbSalvarDoc('comercial_crm', 'dados', { dados: crmData })
+    .then(() => console.log('✅ CRM salvo'))
+    .catch(e => { console.error('❌ Erro CRM:', e); mostrarToast('Erro ao salvar CRM: ' + e.message, '#f44336'); });
   document.getElementById('modal-orcamento-rapido').style.display = 'none';
   document.body.style.overflow = '';
   mostrarToast(pct > 0 ? `✓ Desconto de ${pct}% salvo — R$ ${Math.round(totalOriginal*(1-pct/100)).toLocaleString('pt-BR')}` : '✓ Nota salva');
@@ -3164,7 +3170,9 @@ let historicoPropostas = [];
 let filtroAtivo = 'todos';
 
 function salvarHistorico() {
-  fbSalvarDoc('comercial_historico', 'dados', { lista: historicoPropostas }).catch(e => console.error(e));
+  fbSalvarDoc('comercial_historico', 'dados', { lista: historicoPropostas })
+    .then(() => console.log('✅ Histórico salvo:', historicoPropostas.length, 'propostas'))
+    .catch(e => { console.error('❌ Erro histórico:', e); mostrarToast('Erro ao salvar: ' + e.message, '#f44336'); });
 }
 
 function mostrarToast(msg, cor) {
