@@ -401,6 +401,7 @@ function backupImportar(input) {
 
 <nav>
   <div class="nav-logo">WEN <span>·</span> COMERCIAL</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#333;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #222;border-radius:3px;align-self:center">v1.1</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('proposta',this)">Proposta</button>
     <button class="nav-tab" id="tab-clientes" onclick="showSection('clientes',this)">Clientes</button>
@@ -1014,7 +1015,7 @@ function backupImportar(input) {
       <div class="dash-kpi" style="--kpi-cor:#FFC20E">
         <span class="dash-kpi-icon">🎯</span>
         <div class="dash-kpi-val" id="dk-ticket">R$ 0</div>
-        <div class="dash-kpi-label">Ticket Médio</div>
+        <div class="dash-kpi-label">Valor Médio / Hora</div>
         <div class="dash-kpi-sub" id="dk-ticket-sub">—</div>
       </div>
       <div class="dash-kpi" style="--kpi-cor:#8DC63F">
@@ -1821,7 +1822,8 @@ function renderDashboard() {
 
   const total = todas.length;
   const volume = todas.reduce((s,p) => s + Number(p.total||0), 0);
-  const ticket = total > 0 ? Math.round(volume / total) : 0;
+  const totalHoras = todas.reduce((s,p) => s + Number(p.horas||0), 0);
+  const ticket = totalHoras > 0 ? Math.round(volume / totalHoras) : 0;
 
   // Conversão CRM
   const ganhos = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'ganhos').length;
@@ -1836,7 +1838,8 @@ function renderDashboard() {
     if (idx > 0) {
       const ant = mesesArr[idx - 1].props;
       const volAnt = ant.reduce((s,p) => s + Number(p.total||0), 0);
-      const ticketAnt = ant.length > 0 ? Math.round(volAnt / ant.length) : 0;
+      const horasAnt = ant.reduce((s,p) => s + Number(p.horas||0), 0);
+      const ticketAnt = horasAnt > 0 ? Math.round(volAnt / horasAnt) : 0;
       const diffVol = volAnt > 0 ? Math.round((volume - volAnt) / volAnt * 100) : 0;
       const diffTck = ticketAnt > 0 ? Math.round((ticket - ticketAnt) / ticketAnt * 100) : 0;
       subTotal = `${total > ant.length ? '▲' : '▼'} ${Math.abs(total - ant.length)} vs mês anterior`;
@@ -1846,7 +1849,7 @@ function renderDashboard() {
   } else if (dashFiltroMes === 'todos' && mesesArr.length > 0) {
     subTotal = `em ${mesesArr.length} mese${mesesArr.length>1?'s':''}`;
     subVolume = `${mesesArr.length} mese${mesesArr.length>1?'s':''} de histórico`;
-    subTicket = `baseado em ${total} orçamento${total!==1?'s':''}`;
+    subTicket = `baseado em ${totalHoras}h orçadas`;
   }
 
   // KPIs
