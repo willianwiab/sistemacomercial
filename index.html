@@ -334,18 +334,166 @@ function backupImportar(input) {
   .crm-nego-valor { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--verde-wen); letter-spacing: 1px; }
 
   @media (max-width: 900px) { .kanban-board { grid-template-columns: 1fr 1fr; } }
+
+  /* ── WIDGET META HORAS ── */
+  .meta-widget { background: linear-gradient(135deg, #0a1a0a, #0d1f0d); border: 1px solid #1a3a1a; border-radius: 14px; padding: 1.6rem; margin-bottom: 14px; position: relative; overflow: hidden; }
+  .meta-widget::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #84CC16, #4ade80); }
+  .meta-widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 8px; }
+  .meta-widget-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 3px; color: #84CC16; }
+  .meta-widget-mes { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: #555; letter-spacing: 1px; }
+  .meta-widget-sync { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: #444; letter-spacing: 1px; cursor: pointer; padding: 3px 8px; border: 1px solid #1a3a1a; border-radius: 4px; background: none; transition: all 0.2s; }
+  .meta-widget-sync:hover { border-color: #84CC16; color: #84CC16; }
+  .meta-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.2rem; }
+  .meta-num-item { text-align: center; }
+  .meta-num-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 1px; line-height: 1; }
+  .meta-num-label { font-size: 0.62rem; color: #555; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; font-family: 'DM Mono', monospace; }
+  .meta-progress-track { background: #1a1a1a; border-radius: 99px; height: 14px; overflow: hidden; margin-bottom: 8px; position: relative; }
+  .meta-progress-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; position: relative; }
+  .meta-progress-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%); }
+  .meta-progress-labels { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.6rem; color: #555; }
+  .meta-milestones { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .meta-milestone { font-family: 'DM Mono', monospace; font-size: 0.6rem; padding: 2px 8px; border-radius: 3px; border: 1px solid #2a2a2a; color: #555; transition: all 0.3s; }
+  .meta-milestone.reached { border-color: #84CC1655; color: #84CC16; background: rgba(132,204,22,0.08); }
+  .meta-loading { display: flex; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 0.7rem; color: #555; padding: 1rem 0; }
+  .meta-spinner { width: 14px; height: 14px; border: 2px solid #1a3a1a; border-top-color: #84CC16; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .meta-error { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: #C0272D; padding: 0.5rem 0; }
+
+
   @media (max-width: 700px) {
-    .form-row { grid-template-columns: 1fr; }
+    /* Layout geral */
+    .section { padding: 70px 0 80px; }
+    .container { padding: 0 1rem; }
+    .section-title { font-size: 2.2rem; }
+    .section-sub { font-size: 0.88rem; margin-bottom: 2rem; }
+
+    /* Nav desktop: oculta abas de texto, mostra só ícones */
+    nav { padding: 0 1rem; height: 56px; }
+    .nav-logo { font-size: 1.3rem; }
+    .nav-tabs { gap: 2px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab { padding: 6px 10px; font-size: 0.68rem; white-space: nowrap; flex-shrink: 0; }
+
+    /* Barra nav inferior (mobile app style) */
+    .mobile-nav-bar {
+      display: flex !important;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(10,10,10,0.97); border-top: 1px solid #222;
+      backdrop-filter: blur(12px); height: 60px;
+      justify-content: space-around; align-items: center;
+      padding: 0 0.5rem;
+    }
+    .mobile-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      background: none; border: none; color: #555; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 0.55rem; letter-spacing: 0.5px;
+      text-transform: uppercase; padding: 6px 12px; border-radius: 8px; transition: all 0.2s;
+      flex: 1;
+    }
+    .mobile-nav-item .mn-icon { font-size: 1.3rem; line-height: 1; }
+    .mobile-nav-item.active { color: var(--verde-wen); }
+    .mobile-nav-item.active .mn-icon { filter: drop-shadow(0 0 6px #84CC16); }
+
+    /* Formulário — campos grandes para toque */
+    .proposta-form { padding: 1.2rem; border-radius: 10px; }
+    .form-row { grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 0.8rem; }
+    .form-group label { font-size: 0.68rem; margin-bottom: 8px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-size: 1rem !important;
+      padding: 13px 14px;
+      border-radius: 8px;
+    }
+    .form-group textarea { min-height: 70px; }
+
+    /* Studio selector — 1 coluna */
+    .studio-selector { grid-template-columns: 1fr; gap: 6px; }
+    .studio-opt { padding: 14px; flex-direction: row; align-items: center; gap: 12px; }
+    .studio-opt-nome { font-size: 1.1rem; }
+
+    /* Modo selector — scroll horizontal */
+    .modo-selector { grid-template-columns: repeat(3, minmax(120px, 1fr)); overflow-x: auto; gap: 8px; padding-bottom: 4px; }
+    .modo-opt { padding: 12px 10px; min-width: 110px; }
+
+    /* Hour picker — botões maiores */
+    .hour-picker, .desconto-picker { height: 52px; }
+    .hour-btn { width: 52px; font-size: 1.6rem; }
+    #f-horas-num { font-size: 1.6rem; }
+
+    /* Price preview — wrap melhor */
+    .price-preview { gap: 1rem; padding: 1rem; flex-wrap: wrap; justify-content: center; }
+    .price-preview-sep { display: none; }
+    .price-preview-item { min-width: 80px; text-align: center; }
+    .pp-val { font-size: 1.2rem; }
+    .pp-val.total { font-size: 1.6rem; }
+
+    /* Botão gerar — largura total */
+    .btn-gerar { width: 100%; padding: 16px; font-size: 1.1rem; border-radius: 8px; }
+
+    /* Proposta gerada */
+    .proposta-header { padding: 1.5rem 1.2rem 1.2rem; }
+    .proposta-titulo { font-size: 1.5rem; }
+    .proposta-body { padding: 1.2rem; }
     .prop-grid { grid-template-columns: 1fr; }
-    .hist-stats { grid-template-columns: 1fr; }
-    .hist-info-grid { grid-template-columns: 1fr 1fr; }
     .investimento-box { flex-direction: column; gap: 1rem; }
-    nav { padding: 0 1rem; }
-    .nav-tabs { gap: 2px; }
-    .nav-tab { padding: 6px 8px; font-size: 0.7rem; }
-    .studio-selector { grid-template-columns: 1fr; }
+    .inv-valor { font-size: 2.2rem; }
+    .proposta-footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1rem; }
+    .btn-print { width: 100%; margin-right: 0; margin-bottom: 8px; padding: 12px; }
+
+    /* Kanban — scroll horizontal entre colunas */
+    .kanban-board {
+      grid-template-columns: repeat(4, 85vw) !important;
+      overflow-x: auto; gap: 10px;
+      padding-bottom: 8px; scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .kanban-col { scroll-snap-align: start; min-width: 0; }
+    .kanban-cards { max-height: 65vh; overflow-y: auto; }
+
+    /* Histórico */
+    .hist-stats { grid-template-columns: repeat(3,1fr); }
+    .hist-info-grid { grid-template-columns: 1fr 1fr; }
+    .hist-card-top { flex-wrap: wrap; gap: 6px; }
+    .hist-actions { width: 100%; justify-content: flex-end; }
+
+    /* Clientes */
+    .cli-card { flex-direction: column; align-items: stretch; }
+    .cli-actions { flex-wrap: wrap; gap: 6px; justify-content: flex-start; margin-top: 8px; }
+    .cli-btn { padding: 8px 14px; font-size: 0.75rem; }
+
+    /* Dashboard */
+    .dash-grid { grid-template-columns: 1fr 1fr; }
+    .dash-row, .dash-row.three { grid-template-columns: 1fr; }
+    .dash-kpi { padding: 1rem 1.2rem; }
+    .dash-kpi-val { font-size: 1.7rem; }
+    .dash-donut-wrap { flex-direction: column; align-items: flex-start; }
+    .dash-bar-label { width: 100px; font-size: 0.68rem; }
+
+    /* Modais — tela cheia */
+    #modal-cliente > div,
+    #modal-crm > div,
+    #modal-wpp > div {
+      margin: 0 !important;
+      border-radius: 14px 14px 0 0 !important;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      max-height: 92vh; overflow-y: auto;
+    }
+    #modal-cliente, #modal-crm, #modal-wpp {
+      align-items: flex-end; display: flex;
+    }
+
+    /* Faixas régua — compacto */
+    .faixas-regua { grid-template-columns: repeat(2,1fr); }
   }
-  @media (max-width: 600px) { .kanban-board { grid-template-columns: 1fr; } }
+
+  @media (max-width: 400px) {
+    .dash-grid { grid-template-columns: 1fr; }
+    .hist-stats { grid-template-columns: 1fr; }
+    .nav-tab { padding: 5px 7px; font-size: 0.62rem; }
+  }
+
+
   /* ── DASHBOARD ── */
   .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 2rem; }
   .dash-kpi { background: var(--cinza); border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.4rem 1.6rem; position: relative; overflow: hidden; transition: border-color 0.2s; }
@@ -401,7 +549,7 @@ function backupImportar(input) {
 
 <nav>
   <div class="nav-logo">WEN <span>·</span> COMERCIAL</div>
-  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#333;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #222;border-radius:3px;align-self:center">v1.1</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#333;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #222;border-radius:3px;align-self:center">v1.4</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('proposta',this)">Proposta</button>
     <button class="nav-tab" id="tab-clientes" onclick="showSection('clientes',this)">Clientes</button>
@@ -1064,6 +1212,20 @@ function backupImportar(input) {
       <div id="dash-evolucao-empty" class="dash-empty" style="display:none">Sem dados suficientes para exibir evolução mensal.</div>
     </div>
 
+    <!-- Meta de Horas — Contas a Receber -->
+    <div class="meta-widget" id="meta-horas-widget">
+      <div class="meta-widget-header">
+        <div>
+          <div class="meta-widget-title">🎯 META DE HORAS — ESTÚDIO</div>
+          <div class="meta-widget-mes" id="meta-mes-label">Carregando...</div>
+        </div>
+        <button class="meta-widget-sync" onclick="carregarMetaHoras(true)">↻ ATUALIZAR</button>
+      </div>
+      <div id="meta-horas-body">
+        <div class="meta-loading"><div class="meta-spinner"></div>Buscando dados do Contas a Receber...</div>
+      </div>
+    </div>
+
     <!-- Linha 4: Clientes top + Métricas extras -->
     <div class="dash-row">
       <div class="dash-card">
@@ -1193,7 +1355,7 @@ function showSection(id, el) {
   if (id === 'historico') renderHistorico();
   if (id === 'crm') renderKanban();
   if (id === 'clientes') renderClientes();
-  if (id === 'dashboard') renderDashboard();
+  if (id === 'dashboard') { renderDashboard(); carregarMetaHoras(); }
 }
 
 // ── Studio / Modo ──
@@ -1986,6 +2148,179 @@ function renderDonut(canvasId, entries, legendId, showValue) {
   ).join('');
 }
 
+// ══════════════════════════════════════════
+// META DE HORAS — INTEGRAÇÃO CONTAS A RECEBER
+// ══════════════════════════════════════════
+const META_HORAS_MES = 100;
+const FB_RECEBER_PROJECT = 'wencontasapagar';
+const FB_RECEBER_KEY = 'AIzaSyC7hYN3__Q_4MNAu6VCTXbTdvVSW37IneI';
+const FB_RECEBER_BASE = `https://firestore.googleapis.com/v1/projects/${FB_RECEBER_PROJECT}/databases/(default)/documents`;
+
+let _metaCache = null;
+let _metaCacheTs = 0;
+let _metaMesSel = null; // null = mês atual
+
+function _mesAtualContas() {
+  const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  const d = new Date();
+  return meses[d.getMonth()] + '/' + d.getFullYear();
+}
+
+async function _fbCarregarLancamentos() {
+  let todos = [], pageToken = null;
+  do {
+    let url = `${FB_RECEBER_BASE}/lancamentos?key=${FB_RECEBER_KEY}&pageSize=300`;
+    if (pageToken) url += '&pageToken=' + pageToken;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Erro Firebase: ' + res.statusText);
+    const json = await res.json();
+    if (json.documents) {
+      json.documents.forEach(doc => {
+        const f = doc.fields || {};
+        const obj = {};
+        Object.keys(f).forEach(k => obj[k] = _fromFVMeta(f[k]));
+        todos.push(obj);
+      });
+    }
+    pageToken = json.nextPageToken || null;
+  } while (pageToken);
+  return todos;
+}
+
+function _fromFVMeta(fv) {
+  if (!fv) return null;
+  if ('nullValue' in fv) return null;
+  if ('booleanValue' in fv) return fv.booleanValue;
+  if ('integerValue' in fv) return Number(fv.integerValue);
+  if ('doubleValue' in fv) return fv.doubleValue;
+  if ('stringValue' in fv) return fv.stringValue;
+  if ('arrayValue' in fv) return (fv.arrayValue.values || []).map(_fromFVMeta);
+  if ('mapValue' in fv) {
+    const o = {}; Object.keys(fv.mapValue.fields || {}).forEach(k => o[k] = _fromFVMeta(fv.mapValue.fields[k])); return o;
+  }
+  return null;
+}
+
+async function carregarMetaHoras(forcar = false) {
+  const agora = Date.now();
+  // Cache de 5 min
+  if (!forcar && _metaCache && (agora - _metaCacheTs) < 300000) {
+    renderMetaWidget(_metaCache);
+    return;
+  }
+  document.getElementById('meta-horas-body').innerHTML =
+    '<div class="meta-loading"><div class="meta-spinner"></div>Buscando dados do Contas a Receber...</div>';
+  try {
+    const todos = await _fbCarregarLancamentos();
+    _metaCache = todos;
+    _metaCacheTs = agora;
+    renderMetaWidget(todos);
+  } catch(e) {
+    document.getElementById('meta-horas-body').innerHTML =
+      `<div class="meta-error">❌ Erro ao carregar: ${e.message}</div>`;
+  }
+}
+
+function renderMetaWidget(lancamentos) {
+  const mesAtualStr = _mesAtualContas();
+  const meses3 = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+
+  const mesesSet = new Set(lancamentos.map(r => r.mes).filter(Boolean));
+  mesesSet.add(mesAtualStr);
+  const mesesDisp = [...mesesSet].sort((a, b) => {
+    const [ma, aa] = a.split('/'); const [mb, ab] = b.split('/');
+    return (+aa - +ab) || (meses3.indexOf(ma) - meses3.indexOf(mb));
+  });
+
+  if (!_metaMesSel || !mesesDisp.includes(_metaMesSel)) _metaMesSel = mesAtualStr;
+  const mesExibido = _metaMesSel;
+  const idxAtual = mesesDisp.indexOf(mesExibido);
+  const isMesAtual = mesExibido === mesAtualStr;
+
+  const doMes = lancamentos.filter(r => r.mes === mesExibido);
+  const horasFaturadas = doMes.reduce((s, r) => s + Number(r.horas || 0), 0);
+  const pct = Math.min(Math.round(horasFaturadas / META_HORAS_MES * 100), 100);
+  const horasFaltam = Math.max(0, META_HORAS_MES - horasFaturadas);
+
+  const cor = pct >= 100 ? '#84CC16' : pct >= 70 ? '#FFC20E' : pct >= 40 ? '#f97316' : '#C0272D';
+  const emoji = pct >= 100 ? '🏆' : pct >= 70 ? '✅' : pct >= 40 ? '⚡' : '🔴';
+  const milestones = [25, 50, 75, 100];
+
+  window._metaCacheRef = lancamentos;
+  window._metaPrevMes = mesesDisp[idxAtual - 1] || null;
+  window._metaNextMes = mesesDisp[idxAtual + 1] || null;
+
+  const temPrev = !!window._metaPrevMes;
+  const temNext = !!window._metaNextMes;
+
+  document.getElementById('meta-mes-label').textContent =
+    mesExibido + (isMesAtual ? ' · mês atual' : '') + ' · ' + doMes.length + ' gravação(ões)';
+
+  // Montar HTML sem template literal para evitar problemas de escaping
+  const body = document.getElementById('meta-horas-body');
+  body.innerHTML = '';
+
+  // ── Navegador de mês ──
+  const nav = document.createElement('div');
+  nav.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:1.2rem';
+
+  const btnPrevEl = document.createElement('button');
+  btnPrevEl.textContent = '‹';
+  btnPrevEl.disabled = !temPrev;
+  btnPrevEl.style.cssText = 'background:#1a1a1a;border:1px solid ' + (temPrev ? '#3a3a3a' : '#222') + ';color:' + (temPrev ? '#ccc' : '#333') + ';width:36px;height:36px;border-radius:6px;cursor:' + (temPrev ? 'pointer' : 'default') + ';font-size:1.1rem;transition:all 0.2s;flex-shrink:0';
+  if (temPrev) btnPrevEl.addEventListener('click', () => { _metaMesSel = window._metaPrevMes; renderMetaWidget(window._metaCacheRef); });
+
+  const mesLabel = document.createElement('div');
+  mesLabel.style.cssText = 'flex:1;text-align:center';
+  mesLabel.innerHTML = '<span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:' + (isMesAtual ? '#84CC16' : '#ccc') + '">' + mesExibido + '</span>' +
+    (isMesAtual ? ' <span style="font-family:'DM Mono',monospace;font-size:0.55rem;background:rgba(132,204,22,0.12);border:1px solid #84CC1644;border-radius:3px;padding:1px 6px;color:#84CC16">ATUAL</span>' : '');
+
+  const btnNextEl = document.createElement('button');
+  btnNextEl.textContent = '›';
+  btnNextEl.disabled = !temNext;
+  btnNextEl.style.cssText = 'background:#1a1a1a;border:1px solid ' + (temNext ? '#3a3a3a' : '#222') + ';color:' + (temNext ? '#ccc' : '#333') + ';width:36px;height:36px;border-radius:6px;cursor:' + (temNext ? 'pointer' : 'default') + ';font-size:1.1rem;transition:all 0.2s;flex-shrink:0';
+  if (temNext) btnNextEl.addEventListener('click', () => { _metaMesSel = window._metaNextMes; renderMetaWidget(window._metaCacheRef); });
+
+  nav.appendChild(btnPrevEl);
+  nav.appendChild(mesLabel);
+  nav.appendChild(btnNextEl);
+  body.appendChild(nav);
+
+  // ── KPIs ──
+  const nums = document.createElement('div');
+  nums.className = 'meta-nums';
+  nums.innerHTML =
+    '<div class="meta-num-item"><div class="meta-num-val" style="color:' + cor + '">' + horasFaturadas + 'h</div><div class="meta-num-label">Horas faturadas</div></div>' +
+    '<div class="meta-num-item"><div class="meta-num-val" style="color:#555">' + META_HORAS_MES + 'h</div><div class="meta-num-label">Meta do mês</div></div>' +
+    '<div class="meta-num-item"><div class="meta-num-val" style="color:' + (horasFaltam === 0 ? '#84CC16' : '#FFC20E') + '">' + horasFaltam + 'h</div><div class="meta-num-label">' + (horasFaltam === 0 ? 'Meta atingida!' : 'Faltam') + '</div></div>' +
+    '<div class="meta-num-item"><div class="meta-num-val" style="color:#84CC16">' + pct + '%</div><div class="meta-num-label">Progresso</div></div>';
+  body.appendChild(nums);
+
+  // ── Barra de progresso ──
+  const track = document.createElement('div');
+  track.className = 'meta-progress-track';
+  const fill = document.createElement('div');
+  fill.className = 'meta-progress-fill';
+  fill.style.cssText = 'width:' + pct + '%;background:linear-gradient(90deg,' + cor + ',' + cor + 'aa)';
+  track.appendChild(fill);
+  body.appendChild(track);
+
+  const labels = document.createElement('div');
+  labels.className = 'meta-progress-labels';
+  labels.innerHTML = '<span>0h</span><span>25h</span><span>50h</span><span>75h</span><span>' + META_HORAS_MES + 'h ' + emoji + '</span>';
+  body.appendChild(labels);
+
+  // ── Milestones ──
+  const ms = document.createElement('div');
+  ms.className = 'meta-milestones';
+  ms.style.marginTop = '10px';
+  ms.innerHTML = milestones.map(m =>
+    '<span class="meta-milestone' + (horasFaturadas >= META_HORAS_MES * m / 100 ? ' reached' : '') + '">' + (m === 100 ? '🏆 META' : m + '%') + '</span>'
+  ).join('');
+  body.appendChild(ms);
+}
+
+
 // ── Máscara celular ──
 function mascaraCelular(el) {
   let v = el.value.replace(/\D/g,'').substring(0,11);
@@ -2002,7 +2337,55 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pp-total').style.transition = 'opacity 0.12s';
   atualizarBadge(); atualizarBadgeClientes(); atualizarBadgeCRM(); renderClientes();
 });
-window.addEventListener('load', () => { fbCarregarTudo().then(() => { if (typeof renderDashboard === 'function') renderDashboard(); }); });
+window.addEventListener('load', () => { fbCarregarTudo().then(() => { if (typeof renderDashboard === 'function') renderDashboard(); if (typeof carregarMetaHoras === 'function') carregarMetaHoras(); }); });
+</script>
+<!-- NAV MOBILE INFERIOR -->
+<div class="mobile-nav-bar" style="display:none" id="mobile-nav">
+  <button class="mobile-nav-item active" id="mn-proposta" onclick="showSection('proposta',null);mobileNav('proposta')">
+    <span class="mn-icon">✦</span>Proposta
+  </button>
+  <button class="mobile-nav-item" id="mn-clientes" onclick="showSection('clientes',null);mobileNav('clientes')">
+    <span class="mn-icon">👤</span>Clientes
+  </button>
+  <button class="mobile-nav-item" id="mn-crm" onclick="showSection('crm',null);mobileNav('crm')">
+    <span class="mn-icon">📌</span><span id="mn-crm-label">CRM</span>
+  </button>
+  <button class="mobile-nav-item" id="mn-historico" onclick="showSection('historico',null);mobileNav('historico')">
+    <span class="mn-icon">📋</span><span id="mn-hist-label">Histórico</span>
+  </button>
+  <button class="mobile-nav-item" id="mn-dashboard" onclick="showSection('dashboard',null);mobileNav('dashboard')">
+    <span class="mn-icon">📊</span>Dash
+  </button>
+</div>
+
+<script>
+function mobileNav(id) {
+  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('mn-' + id);
+  if (el) el.classList.add('active');
+}
+// Mostrar nav mobile apenas em telas pequenas
+function checkMobileNav() {
+  const nav = document.getElementById('mobile-nav');
+  if (nav) nav.style.display = window.innerWidth <= 700 ? 'flex' : 'none';
+}
+window.addEventListener('resize', checkMobileNav);
+checkMobileNav();
+
+// Sincronizar badges do mobile nav
+const _origAtualizarBadge = atualizarBadge;
+atualizarBadge = function() {
+  _origAtualizarBadge();
+  const tab = document.getElementById('mn-hist-label');
+  if (tab) tab.textContent = historicoPropostas.length > 0 ? `Hist.(${historicoPropostas.length})` : 'Histórico';
+};
+const _origAtualizarBadgeCRM = atualizarBadgeCRM;
+atualizarBadgeCRM = function() {
+  _origAtualizarBadgeCRM();
+  const alertas = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'pendente' && diasDesde(p.data) >= 3).length;
+  const label = document.getElementById('mn-crm-label');
+  if (label) label.textContent = alertas > 0 ? `CRM 🔴` : 'CRM';
+};
 </script>
 </body>
 </html>
