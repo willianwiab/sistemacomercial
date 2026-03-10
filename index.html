@@ -346,6 +346,44 @@ function backupImportar(input) {
     .studio-selector { grid-template-columns: 1fr; }
   }
   @media (max-width: 600px) { .kanban-board { grid-template-columns: 1fr; } }
+  /* ── DASHBOARD ── */
+  .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 2rem; }
+  .dash-kpi { background: var(--cinza); border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.4rem 1.6rem; position: relative; overflow: hidden; transition: border-color 0.2s; }
+  .dash-kpi:hover { border-color: #3a3a3a; }
+  .dash-kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--kpi-cor, var(--verde-wen)); }
+  .dash-kpi-icon { font-size: 1.4rem; margin-bottom: 10px; display: block; }
+  .dash-kpi-val { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 1px; color: var(--kpi-cor, var(--verde-wen)); line-height: 1; margin-bottom: 4px; }
+  .dash-kpi-label { font-size: 0.68rem; color: var(--cinza-claro); text-transform: uppercase; letter-spacing: 1.5px; }
+  .dash-kpi-sub { font-size: 0.72rem; color: #555; margin-top: 6px; font-family: 'DM Mono', monospace; }
+  .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .dash-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .dash-card { background: var(--cinza); border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.4rem; }
+  .dash-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 3px; color: var(--verde-wen); margin-bottom: 1.2rem; padding-bottom: 8px; border-bottom: 1px solid #2a2a2a; }
+  .dash-donut-wrap { display: flex; align-items: center; gap: 1.5rem; }
+  .dash-donut-wrap canvas { flex-shrink: 0; }
+  .dash-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+  .dash-legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; }
+  .dash-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dash-legend-label { flex: 1; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-legend-val { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--cinza-claro); flex-shrink: 0; }
+  .dash-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .dash-bar-label { font-size: 0.72rem; color: #ccc; width: 140px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-bar-track { flex: 1; background: #1a1a1a; border-radius: 4px; height: 8px; overflow: hidden; }
+  .dash-bar-fill { height: 100%; border-radius: 4px; background: var(--verde-wen); transition: width 0.6s ease; }
+  .dash-bar-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--cinza-claro); width: 36px; text-align: right; flex-shrink: 0; }
+  .dash-month-sel { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .dash-month-btn { background: #1a1a1a; border: 1px solid #2a2a2a; color: #888; font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+  .dash-month-btn.active { background: rgba(132,204,22,0.12); border-color: var(--verde-wen); color: var(--verde-wen); }
+  .dash-empty { text-align: center; padding: 2rem; color: #444; font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 1px; }
+  .dash-crm-bar { display: flex; border-radius: 8px; overflow: hidden; height: 28px; margin-bottom: 1rem; }
+  .dash-crm-seg { display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 1px; transition: flex 0.6s ease; cursor: default; }
+  .dash-taxa-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a1a1a; }
+  .dash-taxa-row:last-child { border-bottom: none; }
+  .dash-taxa-label { font-size: 0.78rem; color: #ccc; }
+  .dash-taxa-val { font-family: 'Bebas Neue', monospace; font-size: 1.1rem; color: var(--verde-wen); letter-spacing: 1px; }
+  @media (max-width: 900px) { .dash-grid { grid-template-columns: repeat(2,1fr); } .dash-row { grid-template-columns: 1fr; } .dash-row.three { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .dash-grid { grid-template-columns: 1fr; } }
+
   @media print {
     nav { display: none; }
     .section { display: none !important; }
@@ -357,6 +395,7 @@ function backupImportar(input) {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -367,6 +406,7 @@ function backupImportar(input) {
     <button class="nav-tab" id="tab-clientes" onclick="showSection('clientes',this)">Clientes</button>
     <button class="nav-tab" id="tab-crm" onclick="showSection('crm',this)">CRM</button>
     <button class="nav-tab" id="tab-historico" onclick="showSection('historico',this)">Histórico</button>
+    <button class="nav-tab" id="tab-dashboard" onclick="showSection('dashboard',this)">📊 Dashboard</button>
     <button class="nav-tab" onclick="backupExportar()" style="margin-left:auto;background:#1a3a1a;color:#4caf50;border:1px solid #4caf50">💾 Backup</button>
     <label class="nav-tab" style="cursor:pointer;background:#1a2a3a;color:#64b5f6;border:1px solid #64b5f6">📂 Restaurar<input type="file" accept=".json" onchange="backupImportar(this)" style="display:none"></label>
   </div>
@@ -944,6 +984,100 @@ function backupImportar(input) {
   </div>
 </section>
 
+<!-- ═══════════ SEÇÃO: DASHBOARD ═══════════ -->
+<section id="dashboard" class="section">
+  <div class="container">
+    <p class="section-eyebrow">Visão Geral</p>
+    <h1 class="section-title">DASH<span>BOARD</span></h1>
+
+    <!-- Filtro de mês -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap">
+      <span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:#555;letter-spacing:2px">PERÍODO</span>
+      <div class="dash-month-sel" id="dash-mes-sel"></div>
+      <button onclick="dashFiltroMes='todos';renderDashboard()" id="dash-btn-todos" class="dash-month-btn active" style="margin-left:auto">TODOS OS TEMPOS</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="dash-grid" id="dash-kpis">
+      <div class="dash-kpi" style="--kpi-cor:#84CC16">
+        <span class="dash-kpi-icon">📋</span>
+        <div class="dash-kpi-val" id="dk-total">0</div>
+        <div class="dash-kpi-label">Orçamentos</div>
+        <div class="dash-kpi-sub" id="dk-total-sub">—</div>
+      </div>
+      <div class="dash-kpi" style="--kpi-cor:#a3e635">
+        <span class="dash-kpi-icon">💰</span>
+        <div class="dash-kpi-val" id="dk-volume">R$ 0</div>
+        <div class="dash-kpi-label">Volume Total</div>
+        <div class="dash-kpi-sub" id="dk-volume-sub">—</div>
+      </div>
+      <div class="dash-kpi" style="--kpi-cor:#FFC20E">
+        <span class="dash-kpi-icon">🎯</span>
+        <div class="dash-kpi-val" id="dk-ticket">R$ 0</div>
+        <div class="dash-kpi-label">Ticket Médio</div>
+        <div class="dash-kpi-sub" id="dk-ticket-sub">—</div>
+      </div>
+      <div class="dash-kpi" style="--kpi-cor:#8DC63F">
+        <span class="dash-kpi-icon">✅</span>
+        <div class="dash-kpi-val" id="dk-conv">0%</div>
+        <div class="dash-kpi-label">Taxa de Conversão</div>
+        <div class="dash-kpi-sub" id="dk-conv-sub">—</div>
+      </div>
+    </div>
+
+    <!-- Linha 1: Status CRM + Tipos de Projeto -->
+    <div class="dash-row">
+      <div class="dash-card">
+        <div class="dash-card-title">STATUS CRM</div>
+        <div class="dash-crm-bar" id="dash-crm-bar"></div>
+        <div class="dash-legend" id="dash-crm-legend"></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">TIPOS DE PROJETO</div>
+        <div class="dash-donut-wrap">
+          <canvas id="chart-tipos" width="130" height="130"></canvas>
+          <div class="dash-legend" id="dash-tipos-legend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linha 2: Estúdios + Top Tipos (barras) -->
+    <div class="dash-row">
+      <div class="dash-card">
+        <div class="dash-card-title">ESTÚDIOS</div>
+        <div class="dash-donut-wrap">
+          <canvas id="chart-studios" width="130" height="130"></canvas>
+          <div class="dash-legend" id="dash-studios-legend"></div>
+        </div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">RANKING DE PROJETOS</div>
+        <div id="dash-ranking"></div>
+      </div>
+    </div>
+
+    <!-- Linha 3: Evolução mensal (linha) -->
+    <div class="dash-card" style="margin-bottom:14px">
+      <div class="dash-card-title">EVOLUÇÃO MENSAL — VOLUME DE ORÇAMENTOS (R$)</div>
+      <canvas id="chart-evolucao" height="80"></canvas>
+      <div id="dash-evolucao-empty" class="dash-empty" style="display:none">Sem dados suficientes para exibir evolução mensal.</div>
+    </div>
+
+    <!-- Linha 4: Clientes top + Métricas extras -->
+    <div class="dash-row">
+      <div class="dash-card">
+        <div class="dash-card-title">TOP CLIENTES</div>
+        <div id="dash-top-clientes"></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">MÉTRICAS DE TAXA</div>
+        <div id="dash-taxas"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 <!-- MODAL WHATSAPP -->
 <div id="modal-wpp" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;padding:2rem;overflow-y:auto">
   <div style="max-width:600px;margin:2rem auto;background:#111;border:1px solid #2a2a2a;border-radius:14px;overflow:hidden">
@@ -1058,6 +1192,7 @@ function showSection(id, el) {
   if (id === 'historico') renderHistorico();
   if (id === 'crm') renderKanban();
   if (id === 'clientes') renderClientes();
+  if (id === 'dashboard') renderDashboard();
 }
 
 // ── Studio / Modo ──
@@ -1642,6 +1777,212 @@ function confirmarLimparTudo() {
   historicoPropostas = []; salvarHistorico(); atualizarBadge(); renderHistorico();
 }
 
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+let dashFiltroMes = 'todos';
+let _chartTipos = null, _chartStudios = null, _chartEvolucao = null;
+
+const DASH_CORES = ['#84CC16','#7B2D8B','#FFC20E','#00AEEF','#C0272D','#a3e635','#8DC63F','#f97316','#06b6d4','#ec4899'];
+const CRM_CORES = { pendente:'#FFC20E', ganho:'#8DC63F', perdido:'#C0272D', semresposta:'#555' };
+const CRM_LABELS = { pendente:'Pendente', ganho:'Ganho', perdido:'Perdido', semresposta:'Sem Resposta' };
+
+function dashGetMeses() {
+  const meses = {};
+  historicoPropostas.forEach(p => {
+    if (!p.data) return;
+    const [d, m, a] = p.data.split('/');
+    const key = `${a}-${m}`;
+    meses[key] = meses[key] || { key, label: new Date(+a, +m-1, 1).toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).toUpperCase(), props: [] };
+    meses[key].props.push(p);
+  });
+  return Object.values(meses).sort((a,b) => a.key.localeCompare(b.key));
+}
+
+function dashGetFiltradas() {
+  if (dashFiltroMes === 'todos') return historicoPropostas;
+  return historicoPropostas.filter(p => {
+    if (!p.data) return false;
+    const [d, m, a] = p.data.split('/');
+    return `${a}-${m}` === dashFiltroMes;
+  });
+}
+
+function renderDashboard() {
+  const todas = dashGetFiltradas();
+  const meses = dashGetMeses();
+
+  // ── Filtro meses ──
+  const sel = document.getElementById('dash-mes-sel');
+  sel.innerHTML = meses.slice(-6).map(m =>
+    `<button class="dash-month-btn${dashFiltroMes===m.key?' active':''}" onclick="dashFiltroMes='${m.key}';renderDashboard()">${m.label}</button>`
+  ).join('');
+  document.getElementById('dash-btn-todos').className = 'dash-month-btn' + (dashFiltroMes==='todos'?' active':'');
+
+  const total = todas.length;
+  const volume = todas.reduce((s,p) => s + Number(p.total||0), 0);
+  const ticket = total > 0 ? Math.round(volume / total) : 0;
+
+  // Conversão CRM
+  const ganhos = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'ganhos').length;
+  const ganhosTotal = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'ganho').length;
+  const conv = historicoPropostas.length > 0 ? Math.round(ganhosTotal / historicoPropostas.length * 100) : 0;
+
+  // Comparativo mês anterior
+  const mesesArr = dashGetMeses();
+  let subTotal = '—', subVolume = '—', subTicket = '—';
+  if (dashFiltroMes !== 'todos' && mesesArr.length >= 2) {
+    const idx = mesesArr.findIndex(m => m.key === dashFiltroMes);
+    if (idx > 0) {
+      const ant = mesesArr[idx - 1].props;
+      const volAnt = ant.reduce((s,p) => s + Number(p.total||0), 0);
+      const ticketAnt = ant.length > 0 ? Math.round(volAnt / ant.length) : 0;
+      const diffVol = volAnt > 0 ? Math.round((volume - volAnt) / volAnt * 100) : 0;
+      const diffTck = ticketAnt > 0 ? Math.round((ticket - ticketAnt) / ticketAnt * 100) : 0;
+      subTotal = `${total > ant.length ? '▲' : '▼'} ${Math.abs(total - ant.length)} vs mês anterior`;
+      subVolume = `${diffVol >= 0 ? '▲' : '▼'} ${Math.abs(diffVol)}% vs mês anterior`;
+      subTicket = `${diffTck >= 0 ? '▲' : '▼'} ${Math.abs(diffTck)}% vs mês anterior`;
+    }
+  } else if (dashFiltroMes === 'todos' && mesesArr.length > 0) {
+    subTotal = `em ${mesesArr.length} mese${mesesArr.length>1?'s':''}`;
+    subVolume = `${mesesArr.length} mese${mesesArr.length>1?'s':''} de histórico`;
+    subTicket = `baseado em ${total} orçamento${total!==1?'s':''}`;
+  }
+
+  // KPIs
+  document.getElementById('dk-total').textContent = total;
+  document.getElementById('dk-volume').textContent = 'R$ ' + (volume/1000 >= 10 ? (volume/1000).toFixed(0)+'k' : volume.toLocaleString('pt-BR'));
+  document.getElementById('dk-ticket').textContent = 'R$ ' + ticket.toLocaleString('pt-BR');
+  document.getElementById('dk-conv').textContent = conv + '%';
+  document.getElementById('dk-total-sub').textContent = subTotal;
+  document.getElementById('dk-volume-sub').textContent = subVolume;
+  document.getElementById('dk-ticket-sub').textContent = subTicket;
+  document.getElementById('dk-conv-sub').textContent = `${ganhosTotal} ganho${ganhosTotal!==1?'s':''} de ${historicoPropostas.length} total`;
+
+  // ── CRM Bar ──
+  const crmCounts = { pendente:0, ganho:0, perdido:0, semresposta:0 };
+  historicoPropostas.forEach(p => { const s = getCRMStatus(p.ref).status; if (crmCounts[s] !== undefined) crmCounts[s]++; });
+  const crmTotal = Object.values(crmCounts).reduce((a,b) => a+b, 0) || 1;
+  const barEl = document.getElementById('dash-crm-bar');
+  barEl.innerHTML = Object.entries(crmCounts).map(([k,v]) =>
+    `<div class="dash-crm-seg" style="flex:${v||0.01};background:${CRM_CORES[k]};color:${k==='semresposta'?'#aaa':'#111'}" title="${CRM_LABELS[k]}: ${v}">${v > 0 && v/crmTotal > 0.08 ? v : ''}</div>`
+  ).join('');
+  document.getElementById('dash-crm-legend').innerHTML = Object.entries(crmCounts).map(([k,v]) =>
+    `<div class="dash-legend-item"><div class="dash-legend-dot" style="background:${CRM_CORES[k]}"></div><span class="dash-legend-label">${CRM_LABELS[k]}</span><span class="dash-legend-val">${v} (${Math.round(v/crmTotal*100)}%)</span></div>`
+  ).join('');
+
+  // ── Tipos de projeto ──
+  const tipoCount = {};
+  todas.forEach(p => { const t = p.tipo||'Outros'; tipoCount[t] = (tipoCount[t]||0) + 1; });
+  const tipoEntries = Object.entries(tipoCount).sort((a,b) => b[1]-a[1]);
+  renderDonut('chart-tipos', tipoEntries, 'dash-tipos-legend', false);
+
+  // ── Estúdios ──
+  const studioCount = {};
+  todas.forEach(p => { const s = p.studio||'Studio A'; studioCount[s] = (studioCount[s]||0) + 1; });
+  const studioEntries = Object.entries(studioCount).sort((a,b) => b[1]-a[1]);
+  renderDonut('chart-studios', studioEntries, 'dash-studios-legend', false);
+
+  // ── Ranking barras ──
+  const maxTipo = tipoEntries[0] ? tipoEntries[0][1] : 1;
+  document.getElementById('dash-ranking').innerHTML = tipoEntries.length === 0
+    ? '<div class="dash-empty">Sem dados</div>'
+    : tipoEntries.slice(0,6).map(([nome, qtd], i) =>
+      `<div class="dash-bar-row">
+        <div class="dash-bar-label" title="${nome}">${nome}</div>
+        <div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round(qtd/maxTipo*100)}%;background:${DASH_CORES[i%DASH_CORES.length]}"></div></div>
+        <div class="dash-bar-num">${qtd}</div>
+      </div>`
+    ).join('');
+
+  // ── Evolução mensal ──
+  const todosMeses = dashGetMeses();
+  const evolCanvas = document.getElementById('chart-evolucao');
+  const evolEmpty = document.getElementById('dash-evolucao-empty');
+  if (todosMeses.length < 2) {
+    evolCanvas.style.display = 'none'; evolEmpty.style.display = 'block';
+  } else {
+    evolCanvas.style.display = ''; evolEmpty.style.display = 'none';
+    const labels = todosMeses.map(m => m.label);
+    const dataVol = todosMeses.map(m => m.props.reduce((s,p) => s + Number(p.total||0), 0));
+    const dataQtd = todosMeses.map(m => m.props.length);
+    if (_chartEvolucao) _chartEvolucao.destroy();
+    _chartEvolucao = new Chart(evolCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Volume (R$)', data: dataVol, borderColor: '#84CC16', backgroundColor: 'rgba(132,204,22,0.08)', tension: 0.4, yAxisID: 'y', pointBackgroundColor: '#84CC16', pointRadius: 4 },
+          { label: 'Qtd. Orçamentos', data: dataQtd, borderColor: '#7B2D8B', backgroundColor: 'rgba(123,45,139,0.08)', tension: 0.4, yAxisID: 'y1', borderDash:[5,3], pointBackgroundColor: '#7B2D8B', pointRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { labels: { color: '#888', font: { family: 'DM Mono', size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#555', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#1a1a1a' } },
+          y: { position: 'left', ticks: { color: '#84CC16', font: { family: 'DM Mono', size: 10 }, callback: v => 'R$' + (v>=1000?(v/1000).toFixed(0)+'k':v) }, grid: { color: '#1a1a1a' } },
+          y1: { position: 'right', ticks: { color: '#7B2D8B', font: { family: 'DM Mono', size: 10 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // ── Top clientes ──
+  const cliVolume = {};
+  todas.forEach(p => { const n = p.cliente||'—'; cliVolume[n] = (cliVolume[n]||0) + Number(p.total||0); });
+  const cliTop = Object.entries(cliVolume).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const maxCli = cliTop[0] ? cliTop[0][1] : 1;
+  document.getElementById('dash-top-clientes').innerHTML = cliTop.length === 0
+    ? '<div class="dash-empty">Sem dados</div>'
+    : cliTop.map(([nome, vol], i) =>
+      `<div class="dash-bar-row">
+        <div class="dash-bar-label" title="${nome}">${nome}</div>
+        <div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round(vol/maxCli*100)}%;background:${DASH_CORES[i%DASH_CORES.length]}"></div></div>
+        <div class="dash-bar-num" style="width:80px;font-size:0.62rem">R$${(vol/1000).toFixed(0)}k</div>
+      </div>`
+    ).join('');
+
+  // ── Métricas de taxa ──
+  const taxaCount = {};
+  todas.forEach(p => { const t = 'R$'+Number(p.taxa||0).toLocaleString('pt-BR')+'/h'; taxaCount[t] = (taxaCount[t]||0) + 1; });
+  const taxaHMedia = todas.length > 0 ? (todas.reduce((s,p) => s + Number(p.horas||0), 0) / todas.length).toFixed(1) : '—';
+  const taxaEntries = Object.entries(taxaCount).sort((a,b) => b[1]-a[1]);
+  document.getElementById('dash-taxas').innerHTML = [
+    { label: 'Média de horas/sessão', val: taxaHMedia + 'h' },
+    { label: 'Orçamentos no período', val: total },
+    { label: 'Receita média/mês', val: todosMeses.length > 0 ? 'R$ ' + Math.round(historicoPropostas.reduce((s,p)=>s+Number(p.total||0),0)/todosMeses.length).toLocaleString('pt-BR') : '—' },
+    ...taxaEntries.map(([t, q]) => ({ label: `Taxa ${t}`, val: `${q} uso${q!==1?'s':''}` }))
+  ].map(r => `<div class="dash-taxa-row"><span class="dash-taxa-label">${r.label}</span><span class="dash-taxa-val">${r.val}</span></div>`).join('');
+}
+
+function renderDonut(canvasId, entries, legendId, showValue) {
+  const canvas = document.getElementById(canvasId);
+  const total = entries.reduce((s,[,v]) => s+v, 0) || 1;
+  const chartKey = '_ch_' + canvasId;
+  if (window[chartKey]) window[chartKey].destroy();
+  if (entries.length === 0) {
+    canvas.style.display = 'none';
+    document.getElementById(legendId).innerHTML = '<div class="dash-empty">Sem dados</div>';
+    return;
+  }
+  canvas.style.display = '';
+  window[chartKey] = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: entries.map(([k]) => k),
+      datasets: [{ data: entries.map(([,v]) => v), backgroundColor: entries.map((_,i) => DASH_CORES[i%DASH_CORES.length]), borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: {
+      cutout: '68%', responsive: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/total*100)}%)` } } }
+    }
+  });
+  document.getElementById(legendId).innerHTML = entries.slice(0,6).map(([nome,v],i) =>
+    `<div class="dash-legend-item"><div class="dash-legend-dot" style="background:${DASH_CORES[i%DASH_CORES.length]}"></div><span class="dash-legend-label">${nome}</span><span class="dash-legend-val">${Math.round(v/total*100)}%</span></div>`
+  ).join('');
+}
+
 // ── Máscara celular ──
 function mascaraCelular(el) {
   let v = el.value.replace(/\D/g,'').substring(0,11);
@@ -1658,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pp-total').style.transition = 'opacity 0.12s';
   atualizarBadge(); atualizarBadgeClientes(); atualizarBadgeCRM(); renderClientes();
 });
-window.addEventListener('load', fbCarregarTudo);
+window.addEventListener('load', () => { fbCarregarTudo().then(() => { if (typeof renderDashboard === 'function') renderDashboard(); }); });
 </script>
 </body>
 </html>
