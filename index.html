@@ -11,8 +11,8 @@
 // ══════════════════════════════════════════
 // FIREBASE — WEN Comercial
 // ══════════════════════════════════════════
-const FB_PROJECT = 'wencontasapagar';
-const FB_API_KEY = 'AIzaSyC7hYN3__Q_4MNAu6VCTXbTdvVSW37IneI';
+const FB_PROJECT = 'sistemacomercial-90f51';
+const FB_API_KEY = 'AIzaSyA62KNyPVVFcRMxKj31ZLCls0dXBBPJOyQ';
 const FS_BASE = 'https://firestore.googleapis.com/v1/projects/' + FB_PROJECT + '/databases/(default)/documents';
 
 function _toFV(v) {
@@ -46,7 +46,9 @@ function _fromFV(fv) {
 async function fbSalvarDoc(colecao, docId, dados) {
   const fields = {};
   Object.keys(dados).forEach(k => fields[k] = _toFV(dados[k]));
-  const url = FS_BASE + '/' + colecao + '/' + docId + '?key=' + FB_API_KEY;
+  // updateMask garante sobrescrita completa do campo (nao merge)
+  const mask = Object.keys(dados).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&');
+  const url = FS_BASE + '/' + colecao + '/' + docId + '?key=' + FB_API_KEY + '&' + mask;
   const res = await fetch(url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -1355,7 +1357,7 @@ function showSection(id, el) {
   if (id === 'historico') renderHistorico();
   if (id === 'crm') renderKanban();
   if (id === 'clientes') renderClientes();
-  if (id === 'dashboard') { renderDashboard(); carregarMetaHoras(); }
+  if (id === 'dashboard') { renderDashboard(); if (!_metaCache) carregarMetaHoras(); else renderMetaWidget(_metaCache); }
 }
 
 // ── Studio / Modo ──
@@ -1596,7 +1598,9 @@ function gerarProposta(reabrir = false) {
       celular: document.getElementById('f-celular').value.trim(),
       tipo, studio: studioLabel, studioCode: studio,
       horas: modoAtual === 'hora' ? horasAtual : (modoAtual === 'pacote-horas' ? pacoteHorasAtual : numDiariasAtual * horasDiariaAtual),
-      taxa, total: c.total, modo: modoAtual, desconto: c.desconto || 0
+      taxa, total: c.total, modo: modoAtual, desconto: c.desconto || 0,
+      numDiarias: numDiariasAtual, horasDiaria: horasDiariaAtual, descontoDiarias: descontoDiariasAtual,
+      pacoteHoras: pacoteHorasAtual, descontoPH: descontoHorasAtual
     });
     const celularProposta = document.getElementById('f-celular').value.trim();
     const jaExiste = clientes.find(x => x.nome.toLowerCase() === cliente.toLowerCase() || (celularProposta && x.tel && x.tel.replace(/\D/g,'') === celularProposta.replace(/\D/g,'')));
@@ -1719,7 +1723,7 @@ function renderClientes() {
     const propHTML = props.length > 0 ? `<div style="margin-top:10px;border-top:1px solid #1e1e1e;padding-top:8px">
       <div style="font-size:0.62rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:1.5px;margin-bottom:6px">ORÇAMENTOS (${props.length}) · Total: R$ ${totalFaturado.toLocaleString('pt-BR')}</div>
       <div style="display:flex;flex-wrap:wrap;gap:5px">
-        ${props.slice(0,5).map(p => { const crm = getCRMStatus(p.ref); const cmap={pendente:'#FFC20E',ganho:'#8DC63F',perdido:'#C0272D',semresposta:'#888'}; const cor=cmap[crm.status]||'#555'; return `<span onclick="reabrirProposta('${p.ref}')" style="font-size:0.65rem;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:3px;border:1px solid ${cor};color:${cor};cursor:pointer">${p.ref} · R$ ${Number(p.total).toLocaleString('pt-BR')}</span>`; }).join('')}
+        ${props.slice(0,5).map(p => { const crm = getCRMStatus(p.ref); const cmap={pendente:'#FFC20E',ganho:'#8DC63F',perdido:'#C0272D',semresposta:'#888'}; const cor=cmap[crm.status]||'#555'; return `<span style="display:inline-flex;align-items:center;gap:0;border:1px solid ${cor};border-radius:4px;overflow:hidden"><span onclick="reabrirProposta('${p.ref}')" style="font-size:0.65rem;font-family:'DM Mono',monospace;padding:3px 8px;color:${cor};cursor:pointer">${p.ref} · R$ ${Number(p.total).toLocaleString('pt-BR')}</span><span onclick="excluirPropostaCliente('${p.ref}')" title="Excluir proposta" style="font-size:0.65rem;padding:3px 7px;color:${cor};cursor:pointer;border-left:1px solid ${cor};opacity:0.6;transition:opacity 0.2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">✕</span></span>`; }).join('')}
         ${props.length>5?`<span style="font-size:0.65rem;color:#555;font-family:'DM Mono',monospace;padding:2px 6px">+${props.length-5} mais</span>`:''}
       </div></div>` : `<div style="margin-top:8px;border-top:1px solid #1e1e1e;padding-top:8px;font-size:0.68rem;color:#444;font-family:'DM Mono',monospace">Nenhum orçamento gerado ainda</div>`;
     return `<div class="cli-card" style="flex-direction:column;align-items:stretch;gap:0">
@@ -1924,12 +1928,68 @@ function reabrirProposta(refOrIdx) {
     document.getElementById('f-tipo').value = p.tipo;
     document.getElementById('f-celular').value = p.celular || '';
     document.getElementById('f-nivel').value = p.taxa;
-    horasAtual = p.horas;
-    document.getElementById('f-horas-num').textContent = horasAtual;
     document.getElementById('f-studio').value = p.studioCode;
     document.querySelectorAll('.studio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === p.studioCode));
+
+    // Restaurar modo correto
+    const modo = p.modo || 'hora';
+    modoAtual = modo;
+    document.getElementById('f-modo').value = modo;
+    document.querySelectorAll('.modo-opt').forEach(b => b.classList.toggle('active', b.dataset.modo === modo));
+    document.getElementById('bloco-hora').style.display = modo === 'hora' ? '' : 'none';
+    document.getElementById('bloco-pacote-horas').style.display = modo === 'pacote-horas' ? '' : 'none';
+    document.getElementById('bloco-pacote-diarias').style.display = modo === 'pacote-diarias' ? '' : 'none';
+
+    if (modo === 'hora') {
+      horasAtual = p.horas || 2;
+      document.getElementById('f-horas-num').textContent = horasAtual;
+    } else if (modo === 'pacote-horas') {
+      pacoteHorasAtual = p.pacoteHoras || p.horas || 20;
+      descontoHorasAtual = p.descontoPH || p.desconto || 0;
+      document.getElementById('f-ph-num').textContent = pacoteHorasAtual;
+      document.getElementById('f-ph-desc-num').textContent = descontoHorasAtual;
+    } else if (modo === 'pacote-diarias') {
+      descontoDiariasAtual = p.descontoDiarias || p.desconto || 0;
+      if (p.numDiarias && p.horasDiaria) {
+        // Proposta nova — campos completos salvos
+        numDiariasAtual = p.numDiarias;
+        horasDiariaAtual = p.horasDiaria;
+      } else if (p.horas && p.taxa) {
+        // Proposta antiga — reconstruir a partir do total salvo
+        // Tenta combinações comuns de diarias x horas que batem com p.horas
+        const combos = [];
+        for (let nd = 1; nd <= 30; nd++) {
+          for (let hd = 2; hd <= 24; hd++) {
+            if (nd * hd === p.horas) combos.push([nd, hd]);
+          }
+        }
+        if (combos.length > 0) {
+          // Preferir combinação onde horasDiaria está entre 2-8 (range típico)
+          const ideal = combos.filter(([nd,hd]) => hd >= 2 && hd <= 8);
+          const [nd, hd] = ideal.length > 0 ? ideal[ideal.length - 1] : combos[0];
+          numDiariasAtual = nd;
+          horasDiariaAtual = hd;
+        } else {
+          numDiariasAtual = p.horas;
+          horasDiariaAtual = 1;
+        }
+      }
+      document.getElementById('f-nd-num').textContent = numDiariasAtual;
+      document.getElementById('f-hd-num').textContent = horasDiariaAtual;
+      document.getElementById('f-dd-num').textContent = descontoDiariasAtual;
+    }
+
     atualizarPreco(); gerarProposta(true);
   }, 150);
+}
+function excluirPropostaCliente(ref) {
+  const p = historicoPropostas.find(x => x.ref === ref);
+  if (!p) return;
+  if (!confirm('Excluir proposta ' + ref + ' de ' + p.cliente + '?\nEssa ação não pode ser desfeita.')) return;
+  const idx = historicoPropostas.findIndex(x => x.ref === ref);
+  historicoPropostas.splice(idx, 1);
+  salvarHistorico(); atualizarBadge(); renderClientes(); renderHistorico();
+  mostrarToast('Proposta ' + ref + ' excluída', '#C0272D');
 }
 function deletarProposta(idx) {
   if (!confirm('Excluir esta proposta do histórico?')) return;
@@ -2152,8 +2212,8 @@ function renderDonut(canvasId, entries, legendId, showValue) {
 // META DE HORAS — INTEGRAÇÃO CONTAS A RECEBER
 // ══════════════════════════════════════════
 const META_HORAS_MES = 100;
-const FB_RECEBER_PROJECT = 'wencontasapagar';
-const FB_RECEBER_KEY = 'AIzaSyC7hYN3__Q_4MNAu6VCTXbTdvVSW37IneI';
+const FB_RECEBER_PROJECT = 'sistemacomercial-90f51';
+const FB_RECEBER_KEY = 'AIzaSyA62KNyPVVFcRMxKj31ZLCls0dXBBPJOyQ';
 const FB_RECEBER_BASE = `https://firestore.googleapis.com/v1/projects/${FB_RECEBER_PROJECT}/databases/(default)/documents`;
 
 let _metaCache = null;
@@ -2167,9 +2227,12 @@ function _mesAtualContas() {
 }
 
 async function _fbCarregarLancamentos() {
+  // Busca todos os meses disponíveis de forma eficiente:
+  // 1. Carrega apenas pageSize=50 por vez (evita explodir leituras)
+  // 2. Usa cache de sessão para não re-buscar meses já carregados
   let todos = [], pageToken = null;
   do {
-    let url = `${FB_RECEBER_BASE}/lancamentos?key=${FB_RECEBER_KEY}&pageSize=300`;
+    let url = `${FB_RECEBER_BASE}/lancamentos?key=${FB_RECEBER_KEY}&pageSize=50`;
     if (pageToken) url += '&pageToken=' + pageToken;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Erro Firebase: ' + res.statusText);
@@ -2183,6 +2246,8 @@ async function _fbCarregarLancamentos() {
       });
     }
     pageToken = json.nextPageToken || null;
+    // Limite de segurança: no máximo 200 documentos (4 páginas de 50)
+    if (todos.length >= 200) break;
   } while (pageToken);
   return todos;
 }
@@ -2204,7 +2269,7 @@ function _fromFVMeta(fv) {
 async function carregarMetaHoras(forcar = false) {
   const agora = Date.now();
   // Cache de 5 min
-  if (!forcar && _metaCache && (agora - _metaCacheTs) < 300000) {
+  if (!forcar && _metaCache && (agora - _metaCacheTs) < 1800000) {
     renderMetaWidget(_metaCache);
     return;
   }
