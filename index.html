@@ -46,7 +46,6 @@ function _fromFV(fv) {
 async function fbSalvarDoc(colecao, docId, dados) {
   const fields = {};
   Object.keys(dados).forEach(k => fields[k] = _toFV(dados[k]));
-  // updateMask garante sobrescrita completa do campo (nao merge)
   const mask = Object.keys(dados).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&');
   const url = FS_BASE + '/' + colecao + '/' + docId + '?key=' + FB_API_KEY + '&' + mask;
   const res = await fetch(url, {
@@ -363,20 +362,15 @@ function backupImportar(input) {
 
 
   @media (max-width: 700px) {
-    /* Layout geral */
     .section { padding: 70px 0 80px; }
     .container { padding: 0 1rem; }
     .section-title { font-size: 2.2rem; }
     .section-sub { font-size: 0.88rem; margin-bottom: 2rem; }
-
-    /* Nav desktop: oculta abas de texto, mostra só ícones */
     nav { padding: 0 1rem; height: 56px; }
     .nav-logo { font-size: 1.3rem; }
     .nav-tabs { gap: 2px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .nav-tabs::-webkit-scrollbar { display: none; }
     .nav-tab { padding: 6px 10px; font-size: 0.68rem; white-space: nowrap; flex-shrink: 0; }
-
-    /* Barra nav inferior (mobile app style) */
     .mobile-nav-bar {
       display: flex !important;
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
@@ -395,45 +389,25 @@ function backupImportar(input) {
     .mobile-nav-item .mn-icon { font-size: 1.3rem; line-height: 1; }
     .mobile-nav-item.active { color: var(--verde-wen); }
     .mobile-nav-item.active .mn-icon { filter: drop-shadow(0 0 6px #84CC16); }
-
-    /* Formulário — campos grandes para toque */
     .proposta-form { padding: 1.2rem; border-radius: 10px; }
     .form-row { grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 0.8rem; }
     .form-group label { font-size: 0.68rem; margin-bottom: 8px; }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      font-size: 1rem !important;
-      padding: 13px 14px;
-      border-radius: 8px;
-    }
+    .form-group input, .form-group select, .form-group textarea { font-size: 1rem !important; padding: 13px 14px; border-radius: 8px; }
     .form-group textarea { min-height: 70px; }
-
-    /* Studio selector — 1 coluna */
     .studio-selector { grid-template-columns: 1fr; gap: 6px; }
     .studio-opt { padding: 14px; flex-direction: row; align-items: center; gap: 12px; }
     .studio-opt-nome { font-size: 1.1rem; }
-
-    /* Modo selector — scroll horizontal */
     .modo-selector { grid-template-columns: repeat(3, minmax(120px, 1fr)); overflow-x: auto; gap: 8px; padding-bottom: 4px; }
     .modo-opt { padding: 12px 10px; min-width: 110px; }
-
-    /* Hour picker — botões maiores */
     .hour-picker, .desconto-picker { height: 52px; }
     .hour-btn { width: 52px; font-size: 1.6rem; }
     #f-horas-num { font-size: 1.6rem; }
-
-    /* Price preview — wrap melhor */
     .price-preview { gap: 1rem; padding: 1rem; flex-wrap: wrap; justify-content: center; }
     .price-preview-sep { display: none; }
     .price-preview-item { min-width: 80px; text-align: center; }
     .pp-val { font-size: 1.2rem; }
     .pp-val.total { font-size: 1.6rem; }
-
-    /* Botão gerar — largura total */
     .btn-gerar { width: 100%; padding: 16px; font-size: 1.1rem; border-radius: 8px; }
-
-    /* Proposta gerada */
     .proposta-header { padding: 1.5rem 1.2rem 1.2rem; }
     .proposta-titulo { font-size: 1.5rem; }
     .proposta-body { padding: 1.2rem; }
@@ -442,50 +416,27 @@ function backupImportar(input) {
     .inv-valor { font-size: 2.2rem; }
     .proposta-footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1rem; }
     .btn-print { width: 100%; margin-right: 0; margin-bottom: 8px; padding: 12px; }
-
-    /* Kanban — scroll horizontal entre colunas */
-    .kanban-board {
-      grid-template-columns: repeat(4, 85vw) !important;
-      overflow-x: auto; gap: 10px;
-      padding-bottom: 8px; scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
+    .kanban-board { grid-template-columns: repeat(4, 85vw) !important; overflow-x: auto; gap: 10px; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
     .kanban-col { scroll-snap-align: start; min-width: 0; }
     .kanban-cards { max-height: 65vh; overflow-y: auto; }
-
-    /* Histórico */
     .hist-stats { grid-template-columns: repeat(3,1fr); }
     .hist-info-grid { grid-template-columns: 1fr 1fr; }
     .hist-card-top { flex-wrap: wrap; gap: 6px; }
     .hist-actions { width: 100%; justify-content: flex-end; }
-
-    /* Clientes */
     .cli-card { flex-direction: column; align-items: stretch; }
     .cli-actions { flex-wrap: wrap; gap: 6px; justify-content: flex-start; margin-top: 8px; }
     .cli-btn { padding: 8px 14px; font-size: 0.75rem; }
-
-    /* Dashboard */
     .dash-grid { grid-template-columns: 1fr 1fr; }
     .dash-row, .dash-row.three { grid-template-columns: 1fr; }
     .dash-kpi { padding: 1rem 1.2rem; }
     .dash-kpi-val { font-size: 1.7rem; }
     .dash-donut-wrap { flex-direction: column; align-items: flex-start; }
     .dash-bar-label { width: 100px; font-size: 0.68rem; }
-
-    /* Modais — tela cheia */
-    #modal-cliente > div,
-    #modal-crm > div,
-    #modal-wpp > div {
-      margin: 0 !important;
-      border-radius: 14px 14px 0 0 !important;
-      position: fixed; bottom: 0; left: 0; right: 0;
-      max-height: 92vh; overflow-y: auto;
+    #modal-cliente > div, #modal-crm > div, #modal-wpp > div {
+      margin: 0 !important; border-radius: 14px 14px 0 0 !important;
+      position: fixed; bottom: 0; left: 0; right: 0; max-height: 92vh; overflow-y: auto;
     }
-    #modal-cliente, #modal-crm, #modal-wpp {
-      align-items: flex-end; display: flex;
-    }
-
-    /* Faixas régua — compacto */
+    #modal-cliente, #modal-crm, #modal-wpp { align-items: flex-end; display: flex; }
     .faixas-regua { grid-template-columns: repeat(2,1fr); }
   }
 
@@ -494,7 +445,6 @@ function backupImportar(input) {
     .hist-stats { grid-template-columns: 1fr; }
     .nav-tab { padding: 5px 7px; font-size: 0.62rem; }
   }
-
 
   /* ── DASHBOARD ── */
   .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 2rem; }
@@ -534,12 +484,16 @@ function backupImportar(input) {
   @media (max-width: 900px) { .dash-grid { grid-template-columns: repeat(2,1fr); } .dash-row { grid-template-columns: 1fr; } .dash-row.three { grid-template-columns: 1fr; } }
   @media (max-width: 600px) { .dash-grid { grid-template-columns: 1fr; } }
 
+  /* ══ PRINT — apenas proposta gerada, sem cabeçalho do sistema ══ */
   @media print {
-    nav { display: none; }
+    nav { display: none !important; }
     .section { display: none !important; }
-    #proposta { display: block !important; padding-top: 20px; }
+    #proposta { display: block !important; padding-top: 10px; }
     .proposta-form { display: none !important; }
     #price-preview { display: none !important; }
+    .section-eyebrow { display: none !important; }
+    h1.section-title { display: none !important; }
+    .section-sub { display: none !important; }
     .btn-print, .btn-gerar { display: none !important; }
     body { background: #0a0a0a !important; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -551,7 +505,7 @@ function backupImportar(input) {
 
 <nav>
   <div class="nav-logo">WEN <span>·</span> COMERCIAL</div>
-  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#333;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #222;border-radius:3px;align-self:center">v1.4</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#333;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #222;border-radius:3px;align-self:center">v1.5</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('proposta',this)">Proposta</button>
     <button class="nav-tab" id="tab-clientes" onclick="showSection('clientes',this)">Clientes</button>
@@ -847,7 +801,19 @@ function backupImportar(input) {
     <div id="proposta-output">
       <div class="proposta-doc">
         <div class="proposta-header">
-          <div class="proposta-tag">Proposta Comercial</div>
+          <!-- Logo WEN — visível na proposta gerada / impressão -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem">
+            <div style="display:flex;align-items:center;gap:12px">
+              <img src="https://static.wixstatic.com/media/60f84b_5a4bf959c0024fd49bb11bf51f952ddc~mv2.png" alt="WEN Logo" style="width:68px;height:68px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(123,45,139,0.4))" />
+              <div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:4px;color:#fff;line-height:1">WEN.</div>
+                <div style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;color:#84CC16;text-transform:uppercase;margin-top:2px">Estúdio de Podcast &amp; Produção</div>
+              </div>
+            </div>
+            <div class="proposta-tag">Proposta Comercial</div>
+          </div>
+          <!-- Barra colorida multicolor -->
+          <div style="height:4px;background:linear-gradient(90deg,#7B2D8B 0%,#00AEEF 35%,#84CC16 70%,#FFC20E 100%);border-radius:2px;margin-bottom:1.4rem"></div>
           <div class="proposta-titulo" id="out-titulo">—</div>
           <div class="proposta-meta" id="out-meta">—</div>
         </div>
@@ -1141,14 +1107,12 @@ function backupImportar(input) {
     <p class="section-eyebrow">Visão Geral</p>
     <h1 class="section-title">DASH<span>BOARD</span></h1>
 
-    <!-- Filtro de mês -->
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap">
       <span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:#555;letter-spacing:2px">PERÍODO</span>
       <div class="dash-month-sel" id="dash-mes-sel"></div>
       <button onclick="dashFiltroMes='todos';renderDashboard()" id="dash-btn-todos" class="dash-month-btn active" style="margin-left:auto">TODOS OS TEMPOS</button>
     </div>
 
-    <!-- KPIs -->
     <div class="dash-grid" id="dash-kpis">
       <div class="dash-kpi" style="--kpi-cor:#84CC16">
         <span class="dash-kpi-icon">📋</span>
@@ -1176,7 +1140,6 @@ function backupImportar(input) {
       </div>
     </div>
 
-    <!-- Linha 1: Status CRM + Tipos de Projeto -->
     <div class="dash-row">
       <div class="dash-card">
         <div class="dash-card-title">STATUS CRM</div>
@@ -1192,7 +1155,6 @@ function backupImportar(input) {
       </div>
     </div>
 
-    <!-- Linha 2: Estúdios + Top Tipos (barras) -->
     <div class="dash-row">
       <div class="dash-card">
         <div class="dash-card-title">ESTÚDIOS</div>
@@ -1207,14 +1169,12 @@ function backupImportar(input) {
       </div>
     </div>
 
-    <!-- Linha 3: Evolução mensal (linha) -->
     <div class="dash-card" style="margin-bottom:14px">
       <div class="dash-card-title">EVOLUÇÃO MENSAL — VOLUME DE ORÇAMENTOS (R$)</div>
       <canvas id="chart-evolucao" height="80"></canvas>
       <div id="dash-evolucao-empty" class="dash-empty" style="display:none">Sem dados suficientes para exibir evolução mensal.</div>
     </div>
 
-    <!-- Meta de Horas — Contas a Receber -->
     <div class="meta-widget" id="meta-horas-widget">
       <div class="meta-widget-header">
         <div>
@@ -1228,7 +1188,6 @@ function backupImportar(input) {
       </div>
     </div>
 
-    <!-- Linha 4: Clientes top + Métricas extras -->
     <div class="dash-row">
       <div class="dash-card">
         <div class="dash-card-title">TOP CLIENTES</div>
@@ -1312,7 +1271,6 @@ const MOTIVOS_MAP = {
   budget: '💰 Sem budget aprovado', outro: '📝 Outro motivo'
 };
 
-// ── Utilitários ──
 function getMinHoras() { const n = parseInt(document.getElementById('f-nivel').value); return n === 630 ? 3 : n === 1100 ? 4 : 2; }
 function getTaxaBase() {
   const manual = document.getElementById('f-manual-toggle').checked;
@@ -1346,7 +1304,6 @@ function diasDesde(dataStr) {
   return Math.floor((Date.now() - new Date(+a, +m-1, +d).getTime()) / 86400000);
 }
 
-// ── Navegação ──
 function showSection(id, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1360,7 +1317,6 @@ function showSection(id, el) {
   if (id === 'dashboard') { renderDashboard(); if (!_metaCache) carregarMetaHoras(); else renderMetaWidget(_metaCache); }
 }
 
-// ── Studio / Modo ──
 function selecionarStudio(el) {
   document.querySelectorAll('.studio-opt').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -1377,7 +1333,6 @@ function selecionarModo(el) {
   atualizarPreco();
 }
 
-// ── Controles de horas ──
 function mudarHoras(delta) {
   const min = getMinHoras();
   horasAtual = Math.max(min, Math.min(MAX_HORAS, horasAtual + delta));
@@ -1405,7 +1360,6 @@ function toggleManual() {
   atualizarPreco();
 }
 
-// ── Faixas de desconto ──
 function atualizarBadgeFaixa(horas) {
   const faixa = getFaixaDesconto(horas);
   const badge = document.getElementById('faixa-badge');
@@ -1433,7 +1387,6 @@ function atualizarRegua() {
   }).join('');
 }
 
-// ── Cálculo de preço ──
 function calcularPrecificacao() {
   const taxa = getTaxaBase();
   if (modoAtual === 'hora') {
@@ -1476,7 +1429,6 @@ function atualizarPreco() {
   setTimeout(() => { elTotal.textContent = 'R$ ' + (c.total + valorEd).toLocaleString('pt-BR'); elTotal.style.opacity = '1'; }, 120);
 }
 
-// ── Add-on Edição ──
 function toggleEdicaoAddon() {
   _edicaoAberta = !_edicaoAberta;
   document.getElementById('edicao-addon-body').style.display = _edicaoAberta ? 'block' : 'none';
@@ -1497,7 +1449,6 @@ function calcularEdicao() {
   atualizarPreco();
 }
 
-// ── WhatsApp ──
 function gerarTextoWhatsApp(dados) {
   const { cliente, responsavel, tipo, studioLabel, duracaoLabel, totalFmt, detalheFmt, desconto, economia, faixaNome, ref, hoje, validade, valorEdicao } = dados;
   const nomeExib = responsavel ? `${responsavel} (${cliente})` : cliente;
@@ -1528,7 +1479,6 @@ async function copiarWpp() {
   }
 }
 
-// ── Gerar proposta ──
 function gerarProposta(reabrir = false) {
   const cliente = document.getElementById('f-cliente').value || 'Cliente';
   const responsavel = document.getElementById('f-responsavel').value || '';
@@ -1684,9 +1634,6 @@ function gerarOrcamentoParaCliente(cliId) {
 function renderClientes() {
   const termo = (document.getElementById('cli-search')?.value || '').toLowerCase();
   const buscaPanel = document.getElementById('cli-busca-painel');
-  const statusCor = { pendente:'#FFC20E', ganho:'#8DC63F', perdido:'#C0272D', semresposta:'#888' };
-  const statusLabel = { pendente:'PENDENTE', ganho:'GANHO', perdido:'PERDIDO', semresposta:'SEM RESP.' };
-
   if (termo.length >= 2) {
     buscaPanel.style.display = 'block';
     const matched = clientes.filter(c => c.nome.toLowerCase().includes(termo) || (c.tel && c.tel.replace(/\D/g,'').includes(termo.replace(/\D/g,''))) || (c.codigo && c.codigo.toLowerCase().includes(termo)) || (c.responsavel && c.responsavel.toLowerCase().includes(termo)));
@@ -1930,8 +1877,6 @@ function reabrirProposta(refOrIdx) {
     document.getElementById('f-nivel').value = p.taxa;
     document.getElementById('f-studio').value = p.studioCode;
     document.querySelectorAll('.studio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === p.studioCode));
-
-    // Restaurar modo correto
     const modo = p.modo || 'hora';
     modoAtual = modo;
     document.getElementById('f-modo').value = modo;
@@ -1939,7 +1884,6 @@ function reabrirProposta(refOrIdx) {
     document.getElementById('bloco-hora').style.display = modo === 'hora' ? '' : 'none';
     document.getElementById('bloco-pacote-horas').style.display = modo === 'pacote-horas' ? '' : 'none';
     document.getElementById('bloco-pacote-diarias').style.display = modo === 'pacote-diarias' ? '' : 'none';
-
     if (modo === 'hora') {
       horasAtual = p.horas || 2;
       document.getElementById('f-horas-num').textContent = horasAtual;
@@ -1951,34 +1895,17 @@ function reabrirProposta(refOrIdx) {
     } else if (modo === 'pacote-diarias') {
       descontoDiariasAtual = p.descontoDiarias || p.desconto || 0;
       if (p.numDiarias && p.horasDiaria) {
-        // Proposta nova — campos completos salvos
-        numDiariasAtual = p.numDiarias;
-        horasDiariaAtual = p.horasDiaria;
+        numDiariasAtual = p.numDiarias; horasDiariaAtual = p.horasDiaria;
       } else if (p.horas && p.taxa) {
-        // Proposta antiga — reconstruir a partir do total salvo
-        // Tenta combinações comuns de diarias x horas que batem com p.horas
         const combos = [];
-        for (let nd = 1; nd <= 30; nd++) {
-          for (let hd = 2; hd <= 24; hd++) {
-            if (nd * hd === p.horas) combos.push([nd, hd]);
-          }
-        }
-        if (combos.length > 0) {
-          // Preferir combinação onde horasDiaria está entre 2-8 (range típico)
-          const ideal = combos.filter(([nd,hd]) => hd >= 2 && hd <= 8);
-          const [nd, hd] = ideal.length > 0 ? ideal[ideal.length - 1] : combos[0];
-          numDiariasAtual = nd;
-          horasDiariaAtual = hd;
-        } else {
-          numDiariasAtual = p.horas;
-          horasDiariaAtual = 1;
-        }
+        for (let nd = 1; nd <= 30; nd++) for (let hd = 2; hd <= 24; hd++) if (nd * hd === p.horas) combos.push([nd, hd]);
+        if (combos.length > 0) { const ideal = combos.filter(([nd,hd]) => hd >= 2 && hd <= 8); const [nd, hd] = ideal.length > 0 ? ideal[ideal.length - 1] : combos[0]; numDiariasAtual = nd; horasDiariaAtual = hd; }
+        else { numDiariasAtual = p.horas; horasDiariaAtual = 1; }
       }
       document.getElementById('f-nd-num').textContent = numDiariasAtual;
       document.getElementById('f-hd-num').textContent = horasDiariaAtual;
       document.getElementById('f-dd-num').textContent = descontoDiariasAtual;
     }
-
     atualizarPreco(); gerarProposta(true);
   }, 150);
 }
@@ -2005,7 +1932,6 @@ function confirmarLimparTudo() {
 // ══════════════════════════════════════════
 let dashFiltroMes = 'todos';
 let _chartTipos = null, _chartStudios = null, _chartEvolucao = null;
-
 const DASH_CORES = ['#84CC16','#7B2D8B','#FFC20E','#00AEEF','#C0272D','#a3e635','#8DC63F','#f97316','#06b6d4','#ec4899'];
 const CRM_CORES = { pendente:'#FFC20E', ganho:'#8DC63F', perdido:'#C0272D', semresposta:'#555' };
 const CRM_LABELS = { pendente:'Pendente', ganho:'Ganho', perdido:'Perdido', semresposta:'Sem Resposta' };
@@ -2021,7 +1947,6 @@ function dashGetMeses() {
   });
   return Object.values(meses).sort((a,b) => a.key.localeCompare(b.key));
 }
-
 function dashGetFiltradas() {
   if (dashFiltroMes === 'todos') return historicoPropostas;
   return historicoPropostas.filter(p => {
@@ -2030,29 +1955,20 @@ function dashGetFiltradas() {
     return `${a}-${m}` === dashFiltroMes;
   });
 }
-
 function renderDashboard() {
   const todas = dashGetFiltradas();
   const meses = dashGetMeses();
-
-  // ── Filtro meses ──
   const sel = document.getElementById('dash-mes-sel');
   sel.innerHTML = meses.slice(-6).map(m =>
     `<button class="dash-month-btn${dashFiltroMes===m.key?' active':''}" onclick="dashFiltroMes='${m.key}';renderDashboard()">${m.label}</button>`
   ).join('');
   document.getElementById('dash-btn-todos').className = 'dash-month-btn' + (dashFiltroMes==='todos'?' active':'');
-
   const total = todas.length;
   const volume = todas.reduce((s,p) => s + Number(p.total||0), 0);
   const totalHoras = todas.reduce((s,p) => s + Number(p.horas||0), 0);
   const ticket = totalHoras > 0 ? Math.round(volume / totalHoras) : 0;
-
-  // Conversão CRM
-  const ganhos = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'ganhos').length;
   const ganhosTotal = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'ganho').length;
   const conv = historicoPropostas.length > 0 ? Math.round(ganhosTotal / historicoPropostas.length * 100) : 0;
-
-  // Comparativo mês anterior
   const mesesArr = dashGetMeses();
   let subTotal = '—', subVolume = '—', subTicket = '—';
   if (dashFiltroMes !== 'todos' && mesesArr.length >= 2) {
@@ -2073,8 +1989,6 @@ function renderDashboard() {
     subVolume = `${mesesArr.length} mese${mesesArr.length>1?'s':''} de histórico`;
     subTicket = `baseado em ${totalHoras}h orçadas`;
   }
-
-  // KPIs
   document.getElementById('dk-total').textContent = total;
   document.getElementById('dk-volume').textContent = 'R$ ' + (volume/1000 >= 10 ? (volume/1000).toFixed(0)+'k' : volume.toLocaleString('pt-BR'));
   document.getElementById('dk-ticket').textContent = 'R$ ' + ticket.toLocaleString('pt-BR');
@@ -2083,8 +1997,6 @@ function renderDashboard() {
   document.getElementById('dk-volume-sub').textContent = subVolume;
   document.getElementById('dk-ticket-sub').textContent = subTicket;
   document.getElementById('dk-conv-sub').textContent = `${ganhosTotal} ganho${ganhosTotal!==1?'s':''} de ${historicoPropostas.length} total`;
-
-  // ── CRM Bar ──
   const crmCounts = { pendente:0, ganho:0, perdido:0, semresposta:0 };
   historicoPropostas.forEach(p => { const s = getCRMStatus(p.ref).status; if (crmCounts[s] !== undefined) crmCounts[s]++; });
   const crmTotal = Object.values(crmCounts).reduce((a,b) => a+b, 0) || 1;
@@ -2095,38 +2007,24 @@ function renderDashboard() {
   document.getElementById('dash-crm-legend').innerHTML = Object.entries(crmCounts).map(([k,v]) =>
     `<div class="dash-legend-item"><div class="dash-legend-dot" style="background:${CRM_CORES[k]}"></div><span class="dash-legend-label">${CRM_LABELS[k]}</span><span class="dash-legend-val">${v} (${Math.round(v/crmTotal*100)}%)</span></div>`
   ).join('');
-
-  // ── Tipos de projeto ──
   const tipoCount = {};
   todas.forEach(p => { const t = p.tipo||'Outros'; tipoCount[t] = (tipoCount[t]||0) + 1; });
   const tipoEntries = Object.entries(tipoCount).sort((a,b) => b[1]-a[1]);
   renderDonut('chart-tipos', tipoEntries, 'dash-tipos-legend', false);
-
-  // ── Estúdios ──
   const studioCount = {};
   todas.forEach(p => { const s = p.studio||'Studio A'; studioCount[s] = (studioCount[s]||0) + 1; });
   const studioEntries = Object.entries(studioCount).sort((a,b) => b[1]-a[1]);
   renderDonut('chart-studios', studioEntries, 'dash-studios-legend', false);
-
-  // ── Ranking barras ──
   const maxTipo = tipoEntries[0] ? tipoEntries[0][1] : 1;
-  document.getElementById('dash-ranking').innerHTML = tipoEntries.length === 0
-    ? '<div class="dash-empty">Sem dados</div>'
-    : tipoEntries.slice(0,6).map(([nome, qtd], i) =>
-      `<div class="dash-bar-row">
-        <div class="dash-bar-label" title="${nome}">${nome}</div>
-        <div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round(qtd/maxTipo*100)}%;background:${DASH_CORES[i%DASH_CORES.length]}"></div></div>
-        <div class="dash-bar-num">${qtd}</div>
-      </div>`
+  document.getElementById('dash-ranking').innerHTML = tipoEntries.length === 0 ? '<div class="dash-empty">Sem dados</div>' :
+    tipoEntries.slice(0,6).map(([nome, qtd], i) =>
+      `<div class="dash-bar-row"><div class="dash-bar-label" title="${nome}">${nome}</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round(qtd/maxTipo*100)}%;background:${DASH_CORES[i%DASH_CORES.length]}"></div></div><div class="dash-bar-num">${qtd}</div></div>`
     ).join('');
-
-  // ── Evolução mensal ──
   const todosMeses = dashGetMeses();
   const evolCanvas = document.getElementById('chart-evolucao');
   const evolEmpty = document.getElementById('dash-evolucao-empty');
-  if (todosMeses.length < 2) {
-    evolCanvas.style.display = 'none'; evolEmpty.style.display = 'block';
-  } else {
+  if (todosMeses.length < 2) { evolCanvas.style.display = 'none'; evolEmpty.style.display = 'block'; }
+  else {
     evolCanvas.style.display = ''; evolEmpty.style.display = 'none';
     const labels = todosMeses.map(m => m.label);
     const dataVol = todosMeses.map(m => m.props.reduce((s,p) => s + Number(p.total||0), 0));
@@ -2134,15 +2032,11 @@ function renderDashboard() {
     if (_chartEvolucao) _chartEvolucao.destroy();
     _chartEvolucao = new Chart(evolCanvas, {
       type: 'line',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Volume (R$)', data: dataVol, borderColor: '#84CC16', backgroundColor: 'rgba(132,204,22,0.08)', tension: 0.4, yAxisID: 'y', pointBackgroundColor: '#84CC16', pointRadius: 4 },
-          { label: 'Qtd. Orçamentos', data: dataQtd, borderColor: '#7B2D8B', backgroundColor: 'rgba(123,45,139,0.08)', tension: 0.4, yAxisID: 'y1', borderDash:[5,3], pointBackgroundColor: '#7B2D8B', pointRadius: 4 }
-        ]
-      },
-      options: {
-        responsive: true, interaction: { mode: 'index', intersect: false },
+      data: { labels, datasets: [
+        { label: 'Volume (R$)', data: dataVol, borderColor: '#84CC16', backgroundColor: 'rgba(132,204,22,0.08)', tension: 0.4, yAxisID: 'y', pointBackgroundColor: '#84CC16', pointRadius: 4 },
+        { label: 'Qtd. Orçamentos', data: dataQtd, borderColor: '#7B2D8B', backgroundColor: 'rgba(123,45,139,0.08)', tension: 0.4, yAxisID: 'y1', borderDash:[5,3], pointBackgroundColor: '#7B2D8B', pointRadius: 4 }
+      ]},
+      options: { responsive: true, interaction: { mode: 'index', intersect: false },
         plugins: { legend: { labels: { color: '#888', font: { family: 'DM Mono', size: 11 } } } },
         scales: {
           x: { ticks: { color: '#555', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#1a1a1a' } },
@@ -2152,23 +2046,14 @@ function renderDashboard() {
       }
     });
   }
-
-  // ── Top clientes ──
   const cliVolume = {};
   todas.forEach(p => { const n = p.cliente||'—'; cliVolume[n] = (cliVolume[n]||0) + Number(p.total||0); });
   const cliTop = Object.entries(cliVolume).sort((a,b) => b[1]-a[1]).slice(0,5);
   const maxCli = cliTop[0] ? cliTop[0][1] : 1;
-  document.getElementById('dash-top-clientes').innerHTML = cliTop.length === 0
-    ? '<div class="dash-empty">Sem dados</div>'
-    : cliTop.map(([nome, vol], i) =>
-      `<div class="dash-bar-row">
-        <div class="dash-bar-label" title="${nome}">${nome}</div>
-        <div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round(vol/maxCli*100)}%;background:${DASH_CORES[i%DASH_CORES.length]}"></div></div>
-        <div class="dash-bar-num" style="width:80px;font-size:0.62rem">R$${(vol/1000).toFixed(0)}k</div>
-      </div>`
+  document.getElementById('dash-top-clientes').innerHTML = cliTop.length === 0 ? '<div class="dash-empty">Sem dados</div>' :
+    cliTop.map(([nome, vol], i) =>
+      `<div class="dash-bar-row"><div class="dash-bar-label" title="${nome}">${nome}</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round(vol/maxCli*100)}%;background:${DASH_CORES[i%DASH_CORES.length]}"></div></div><div class="dash-bar-num" style="width:80px;font-size:0.62rem">R$${(vol/1000).toFixed(0)}k</div></div>`
     ).join('');
-
-  // ── Métricas de taxa ──
   const taxaCount = {};
   todas.forEach(p => { const t = 'R$'+Number(p.taxa||0).toLocaleString('pt-BR')+'/h'; taxaCount[t] = (taxaCount[t]||0) + 1; });
   const taxaHMedia = todas.length > 0 ? (todas.reduce((s,p) => s + Number(p.horas||0), 0) / todas.length).toFixed(1) : '—';
@@ -2180,28 +2065,17 @@ function renderDashboard() {
     ...taxaEntries.map(([t, q]) => ({ label: `Taxa ${t}`, val: `${q} uso${q!==1?'s':''}` }))
   ].map(r => `<div class="dash-taxa-row"><span class="dash-taxa-label">${r.label}</span><span class="dash-taxa-val">${r.val}</span></div>`).join('');
 }
-
 function renderDonut(canvasId, entries, legendId, showValue) {
   const canvas = document.getElementById(canvasId);
   const total = entries.reduce((s,[,v]) => s+v, 0) || 1;
   const chartKey = '_ch_' + canvasId;
   if (window[chartKey]) window[chartKey].destroy();
-  if (entries.length === 0) {
-    canvas.style.display = 'none';
-    document.getElementById(legendId).innerHTML = '<div class="dash-empty">Sem dados</div>';
-    return;
-  }
+  if (entries.length === 0) { canvas.style.display = 'none'; document.getElementById(legendId).innerHTML = '<div class="dash-empty">Sem dados</div>'; return; }
   canvas.style.display = '';
   window[chartKey] = new Chart(canvas, {
     type: 'doughnut',
-    data: {
-      labels: entries.map(([k]) => k),
-      datasets: [{ data: entries.map(([,v]) => v), backgroundColor: entries.map((_,i) => DASH_CORES[i%DASH_CORES.length]), borderWidth: 0, hoverOffset: 6 }]
-    },
-    options: {
-      cutout: '68%', responsive: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/total*100)}%)` } } }
-    }
+    data: { labels: entries.map(([k]) => k), datasets: [{ data: entries.map(([,v]) => v), backgroundColor: entries.map((_,i) => DASH_CORES[i%DASH_CORES.length]), borderWidth: 0, hoverOffset: 6 }] },
+    options: { cutout: '68%', responsive: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/total*100)}%)` } } } }
   });
   document.getElementById(legendId).innerHTML = entries.slice(0,6).map(([nome,v],i) =>
     `<div class="dash-legend-item"><div class="dash-legend-dot" style="background:${DASH_CORES[i%DASH_CORES.length]}"></div><span class="dash-legend-label">${nome}</span><span class="dash-legend-val">${Math.round(v/total*100)}%</span></div>`
@@ -2209,30 +2083,25 @@ function renderDonut(canvasId, entries, legendId, showValue) {
 }
 
 // ══════════════════════════════════════════
-// META DE HORAS — INTEGRAÇÃO CONTAS A RECEBER
+// META DE HORAS
 // ══════════════════════════════════════════
 const META_HORAS_MES = 100;
-const FB_RECEBER_PROJECT = 'sistemacomercial-90f51';
-const FB_RECEBER_KEY = 'AIzaSyA62KNyPVVFcRMxKj31ZLCls0dXBBPJOyQ';
+const FB_RECEBER_PROJECT = 'wencontasapagar';
+const FB_RECEBER_KEY = 'AIzaSyC7hYN3__Q_4MNAu6VCTXbTdvVSW37IneI';
 const FB_RECEBER_BASE = `https://firestore.googleapis.com/v1/projects/${FB_RECEBER_PROJECT}/databases/(default)/documents`;
-
 let _metaCache = null;
 let _metaCacheTs = 0;
-let _metaMesSel = null; // null = mês atual
+let _metaMesSel = null;
 
 function _mesAtualContas() {
   const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
   const d = new Date();
   return meses[d.getMonth()] + '/' + d.getFullYear();
 }
-
 async function _fbCarregarLancamentos() {
-  // Busca todos os meses disponíveis de forma eficiente:
-  // 1. Carrega apenas pageSize=50 por vez (evita explodir leituras)
-  // 2. Usa cache de sessão para não re-buscar meses já carregados
   let todos = [], pageToken = null;
   do {
-    let url = `${FB_RECEBER_BASE}/lancamentos?key=${FB_RECEBER_KEY}&pageSize=50`;
+    let url = `${FB_RECEBER_BASE}/lancamentos?key=${FB_RECEBER_KEY}&pageSize=300`;
     if (pageToken) url += '&pageToken=' + pageToken;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Erro Firebase: ' + res.statusText);
@@ -2246,12 +2115,9 @@ async function _fbCarregarLancamentos() {
       });
     }
     pageToken = json.nextPageToken || null;
-    // Limite de segurança: no máximo 200 documentos (4 páginas de 50)
-    if (todos.length >= 200) break;
   } while (pageToken);
   return todos;
 }
-
 function _fromFVMeta(fv) {
   if (!fv) return null;
   if ('nullValue' in fv) return null;
@@ -2260,133 +2126,82 @@ function _fromFVMeta(fv) {
   if ('doubleValue' in fv) return fv.doubleValue;
   if ('stringValue' in fv) return fv.stringValue;
   if ('arrayValue' in fv) return (fv.arrayValue.values || []).map(_fromFVMeta);
-  if ('mapValue' in fv) {
-    const o = {}; Object.keys(fv.mapValue.fields || {}).forEach(k => o[k] = _fromFVMeta(fv.mapValue.fields[k])); return o;
-  }
+  if ('mapValue' in fv) { const o = {}; Object.keys(fv.mapValue.fields || {}).forEach(k => o[k] = _fromFVMeta(fv.mapValue.fields[k])); return o; }
   return null;
 }
-
 async function carregarMetaHoras(forcar = false) {
   const agora = Date.now();
-  // Cache de 5 min
-  if (!forcar && _metaCache && (agora - _metaCacheTs) < 1800000) {
-    renderMetaWidget(_metaCache);
-    return;
-  }
-  document.getElementById('meta-horas-body').innerHTML =
-    '<div class="meta-loading"><div class="meta-spinner"></div>Buscando dados do Contas a Receber...</div>';
+  if (!forcar && _metaCache && (agora - _metaCacheTs) < 1800000) { renderMetaWidget(_metaCache); return; }
+  document.getElementById('meta-horas-body').innerHTML = '<div class="meta-loading"><div class="meta-spinner"></div>Buscando dados do Contas a Receber...</div>';
   try {
     const todos = await _fbCarregarLancamentos();
-    _metaCache = todos;
-    _metaCacheTs = agora;
-    renderMetaWidget(todos);
+    _metaCache = todos; _metaCacheTs = agora; renderMetaWidget(todos);
   } catch(e) {
-    document.getElementById('meta-horas-body').innerHTML =
-      `<div class="meta-error">❌ Erro ao carregar: ${e.message}</div>`;
+    document.getElementById('meta-horas-body').innerHTML = `<div class="meta-error">❌ Erro ao carregar: ${e.message}</div>`;
   }
 }
-
 function renderMetaWidget(lancamentos) {
   const mesAtualStr = _mesAtualContas();
   const meses3 = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
-
   const mesesSet = new Set(lancamentos.map(r => r.mes).filter(Boolean));
   mesesSet.add(mesAtualStr);
   const mesesDisp = [...mesesSet].sort((a, b) => {
     const [ma, aa] = a.split('/'); const [mb, ab] = b.split('/');
     return (+aa - +ab) || (meses3.indexOf(ma) - meses3.indexOf(mb));
   });
-
   if (!_metaMesSel || !mesesDisp.includes(_metaMesSel)) _metaMesSel = mesAtualStr;
   const mesExibido = _metaMesSel;
   const idxAtual = mesesDisp.indexOf(mesExibido);
   const isMesAtual = mesExibido === mesAtualStr;
-
   const doMes = lancamentos.filter(r => r.mes === mesExibido);
   const horasFaturadas = doMes.reduce((s, r) => s + Number(r.horas || 0), 0);
   const pct = Math.min(Math.round(horasFaturadas / META_HORAS_MES * 100), 100);
   const horasFaltam = Math.max(0, META_HORAS_MES - horasFaturadas);
-
   const cor = pct >= 100 ? '#84CC16' : pct >= 70 ? '#FFC20E' : pct >= 40 ? '#f97316' : '#C0272D';
   const emoji = pct >= 100 ? '🏆' : pct >= 70 ? '✅' : pct >= 40 ? '⚡' : '🔴';
   const milestones = [25, 50, 75, 100];
-
   window._metaCacheRef = lancamentos;
   window._metaPrevMes = mesesDisp[idxAtual - 1] || null;
   window._metaNextMes = mesesDisp[idxAtual + 1] || null;
-
   const temPrev = !!window._metaPrevMes;
   const temNext = !!window._metaNextMes;
-
-  document.getElementById('meta-mes-label').textContent =
-    mesExibido + (isMesAtual ? ' · mês atual' : '') + ' · ' + doMes.length + ' gravação(ões)';
-
-  // Montar HTML sem template literal para evitar problemas de escaping
+  document.getElementById('meta-mes-label').textContent = mesExibido + (isMesAtual ? ' · mês atual' : '') + ' · ' + doMes.length + ' gravação(ões)';
   const body = document.getElementById('meta-horas-body');
   body.innerHTML = '';
-
-  // ── Navegador de mês ──
   const nav = document.createElement('div');
   nav.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:1.2rem';
-
   const btnPrevEl = document.createElement('button');
-  btnPrevEl.textContent = '‹';
-  btnPrevEl.disabled = !temPrev;
+  btnPrevEl.textContent = '‹'; btnPrevEl.disabled = !temPrev;
   btnPrevEl.style.cssText = 'background:#1a1a1a;border:1px solid ' + (temPrev ? '#3a3a3a' : '#222') + ';color:' + (temPrev ? '#ccc' : '#333') + ';width:36px;height:36px;border-radius:6px;cursor:' + (temPrev ? 'pointer' : 'default') + ';font-size:1.1rem;transition:all 0.2s;flex-shrink:0';
   if (temPrev) btnPrevEl.addEventListener('click', () => { _metaMesSel = window._metaPrevMes; renderMetaWidget(window._metaCacheRef); });
-
   const mesLabel = document.createElement('div');
   mesLabel.style.cssText = 'flex:1;text-align:center';
-  mesLabel.innerHTML = '<span style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:2px;color:' + (isMesAtual ? '#84CC16' : '#ccc') + '">' + mesExibido + '</span>' +
-    (isMesAtual ? ' <span style="font-family:DM Mono,monospace;font-size:0.55rem;background:rgba(132,204,22,0.12);border:1px solid #84CC1644;border-radius:3px;padding:1px 6px;color:#84CC16">ATUAL</span>' : '');
-
+  mesLabel.innerHTML = '<span style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:2px;color:' + (isMesAtual ? '#84CC16' : '#ccc') + '">' + mesExibido + '</span>' + (isMesAtual ? ' <span style="font-family:DM Mono,monospace;font-size:0.55rem;background:rgba(132,204,22,0.12);border:1px solid #84CC1644;border-radius:3px;padding:1px 6px;color:#84CC16">ATUAL</span>' : '');
   const btnNextEl = document.createElement('button');
-  btnNextEl.textContent = '›';
-  btnNextEl.disabled = !temNext;
+  btnNextEl.textContent = '›'; btnNextEl.disabled = !temNext;
   btnNextEl.style.cssText = 'background:#1a1a1a;border:1px solid ' + (temNext ? '#3a3a3a' : '#222') + ';color:' + (temNext ? '#ccc' : '#333') + ';width:36px;height:36px;border-radius:6px;cursor:' + (temNext ? 'pointer' : 'default') + ';font-size:1.1rem;transition:all 0.2s;flex-shrink:0';
   if (temNext) btnNextEl.addEventListener('click', () => { _metaMesSel = window._metaNextMes; renderMetaWidget(window._metaCacheRef); });
-
-  nav.appendChild(btnPrevEl);
-  nav.appendChild(mesLabel);
-  nav.appendChild(btnNextEl);
+  nav.appendChild(btnPrevEl); nav.appendChild(mesLabel); nav.appendChild(btnNextEl);
   body.appendChild(nav);
-
-  // ── KPIs ──
   const nums = document.createElement('div');
   nums.className = 'meta-nums';
-  nums.innerHTML =
-    '<div class="meta-num-item"><div class="meta-num-val" style="color:' + cor + '">' + horasFaturadas + 'h</div><div class="meta-num-label">Horas faturadas</div></div>' +
+  nums.innerHTML = '<div class="meta-num-item"><div class="meta-num-val" style="color:' + cor + '">' + horasFaturadas + 'h</div><div class="meta-num-label">Horas faturadas</div></div>' +
     '<div class="meta-num-item"><div class="meta-num-val" style="color:#555">' + META_HORAS_MES + 'h</div><div class="meta-num-label">Meta do mês</div></div>' +
     '<div class="meta-num-item"><div class="meta-num-val" style="color:' + (horasFaltam === 0 ? '#84CC16' : '#FFC20E') + '">' + horasFaltam + 'h</div><div class="meta-num-label">' + (horasFaltam === 0 ? 'Meta atingida!' : 'Faltam') + '</div></div>' +
     '<div class="meta-num-item"><div class="meta-num-val" style="color:#84CC16">' + pct + '%</div><div class="meta-num-label">Progresso</div></div>';
   body.appendChild(nums);
-
-  // ── Barra de progresso ──
-  const track = document.createElement('div');
-  track.className = 'meta-progress-track';
-  const fill = document.createElement('div');
-  fill.className = 'meta-progress-fill';
+  const track = document.createElement('div'); track.className = 'meta-progress-track';
+  const fill = document.createElement('div'); fill.className = 'meta-progress-fill';
   fill.style.cssText = 'width:' + pct + '%;background:linear-gradient(90deg,' + cor + ',' + cor + 'aa)';
-  track.appendChild(fill);
-  body.appendChild(track);
-
-  const labels = document.createElement('div');
-  labels.className = 'meta-progress-labels';
+  track.appendChild(fill); body.appendChild(track);
+  const labels = document.createElement('div'); labels.className = 'meta-progress-labels';
   labels.innerHTML = '<span>0h</span><span>25h</span><span>50h</span><span>75h</span><span>' + META_HORAS_MES + 'h ' + emoji + '</span>';
   body.appendChild(labels);
-
-  // ── Milestones ──
-  const ms = document.createElement('div');
-  ms.className = 'meta-milestones';
-  ms.style.marginTop = '10px';
-  ms.innerHTML = milestones.map(m =>
-    '<span class="meta-milestone' + (horasFaturadas >= META_HORAS_MES * m / 100 ? ' reached' : '') + '">' + (m === 100 ? '🏆 META' : m + '%') + '</span>'
-  ).join('');
+  const ms = document.createElement('div'); ms.className = 'meta-milestones'; ms.style.marginTop = '10px';
+  ms.innerHTML = milestones.map(m => '<span class="meta-milestone' + (horasFaturadas >= META_HORAS_MES * m / 100 ? ' reached' : '') + '">' + (m === 100 ? '🏆 META' : m + '%') + '</span>').join('');
   body.appendChild(ms);
 }
 
-
-// ── Máscara celular ──
 function mascaraCelular(el) {
   let v = el.value.replace(/\D/g,'').substring(0,11);
   if (!v.length) { el.value=''; return; }
@@ -2396,7 +2211,6 @@ function mascaraCelular(el) {
   el.value = v;
 }
 
-// ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
   atualizarPreco(); atualizarBadgeFaixa(horasAtual);
   document.getElementById('pp-total').style.transition = 'opacity 0.12s';
@@ -2404,6 +2218,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 window.addEventListener('load', () => { fbCarregarTudo().then(() => { if (typeof renderDashboard === 'function') renderDashboard(); if (typeof carregarMetaHoras === 'function') carregarMetaHoras(); }); });
 </script>
+
 <!-- NAV MOBILE INFERIOR -->
 <div class="mobile-nav-bar" style="display:none" id="mobile-nav">
   <button class="mobile-nav-item active" id="mn-proposta" onclick="showSection('proposta',null);mobileNav('proposta')">
@@ -2429,15 +2244,12 @@ function mobileNav(id) {
   const el = document.getElementById('mn-' + id);
   if (el) el.classList.add('active');
 }
-// Mostrar nav mobile apenas em telas pequenas
 function checkMobileNav() {
   const nav = document.getElementById('mobile-nav');
   if (nav) nav.style.display = window.innerWidth <= 700 ? 'flex' : 'none';
 }
 window.addEventListener('resize', checkMobileNav);
 checkMobileNav();
-
-// Sincronizar badges do mobile nav
 const _origAtualizarBadge = atualizarBadge;
 atualizarBadge = function() {
   _origAtualizarBadge();
