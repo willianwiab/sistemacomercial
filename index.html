@@ -468,7 +468,7 @@ function backupImportar(input) {
 
 <nav>
   <div class="nav-logo">WEN <span>·</span> COMERCIAL</div>
-  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#84CC16;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #84CC1644;border-radius:3px;align-self:center">v1.6</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#84CC16;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #84CC1644;border-radius:3px;align-self:center">v1.8</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('proposta',this)">Proposta</button>
     <button class="nav-tab" id="tab-clientes" onclick="showSection('clientes',this)">Clientes</button>
@@ -936,7 +936,6 @@ function backupImportar(input) {
         <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px">ATUALIZAR STATUS</div>
         <button onclick="document.getElementById('modal-crm').style.display='none'" style="background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer">✕</button>
       </div>
-      <!-- RESUMO DA PROPOSTA -->
       <div id="crm-resumo-proposta" style="border-bottom:1px solid #1a1a1a;background:#0a0a0a"></div>
       <div style="padding:1.5rem;display:grid;gap:1rem">
         <input type="hidden" id="crm-edit-ref" />
@@ -1027,7 +1026,7 @@ function backupImportar(input) {
     <div class="hist-stats">
       <div class="hist-stat"><span class="hist-stat-num" id="stat-total">0</span><span class="hist-stat-label">Propostas</span></div>
       <div class="hist-stat"><span class="hist-stat-num" id="stat-valor">R$ 0</span><span class="hist-stat-label">Volume total</span></div>
-      <div class="hist-stat"><span class="hist-stat-num" id="stat-media">R$ 0</span><span class="hist-stat-label">Ticket médio</span></div>
+      <div class="hist-stat"><span class="hist-stat-num" id="stat-media">R$ 0</span><span class="hist-stat-label">Ticket médio / hora</span></div>
     </div>
     <div id="hist-lista"></div>
     <div id="hist-empty" style="display:none">
@@ -1061,10 +1060,10 @@ function backupImportar(input) {
       <button onclick="dashFiltroMes='todos';renderDashboard()" id="dash-btn-todos" class="dash-month-btn active" style="margin-left:auto">TODOS OS TEMPOS</button>
     </div>
     <div class="dash-grid" id="dash-kpis">
-      <div class="dash-kpi" style="--kpi-cor:#84CC16"><span class="dash-kpi-icon">📋</span><div class="dash-kpi-val" id="dk-total">0</div><div class="dash-kpi-label">Orçamentos</div><div class="dash-kpi-sub" id="dk-total-sub">—</div></div>
+      <div class="dash-kpi" style="--kpi-cor:#84CC16"><span class="dash-kpi-icon">📋</span><div class="dash-kpi-val" id="dk-total">0</div><div class="dash-kpi-label">Propostas</div><div class="dash-kpi-sub" id="dk-total-sub">—</div></div>
+      <div class="dash-kpi" style="--kpi-cor:#00AEEF"><span class="dash-kpi-icon">⏱</span><div class="dash-kpi-val" id="dk-horas">0h</div><div class="dash-kpi-label">Horas Orçadas</div><div class="dash-kpi-sub" id="dk-horas-sub">—</div></div>
       <div class="dash-kpi" style="--kpi-cor:#a3e635"><span class="dash-kpi-icon">💰</span><div class="dash-kpi-val" id="dk-volume">R$ 0</div><div class="dash-kpi-label">Volume Total</div><div class="dash-kpi-sub" id="dk-volume-sub">—</div></div>
-      <div class="dash-kpi" style="--kpi-cor:#FFC20E"><span class="dash-kpi-icon">🎯</span><div class="dash-kpi-val" id="dk-ticket">R$ 0</div><div class="dash-kpi-label">Valor Médio / Hora</div><div class="dash-kpi-sub" id="dk-ticket-sub">—</div></div>
-      <div class="dash-kpi" style="--kpi-cor:#8DC63F"><span class="dash-kpi-icon">✅</span><div class="dash-kpi-val" id="dk-conv">0%</div><div class="dash-kpi-label">Taxa de Conversão</div><div class="dash-kpi-sub" id="dk-conv-sub">—</div></div>
+      <div class="dash-kpi" style="--kpi-cor:#FFC20E"><span class="dash-kpi-icon">🎯</span><div class="dash-kpi-val" id="dk-ticket">R$ 0</div><div class="dash-kpi-label">Ticket Médio / Hora</div><div class="dash-kpi-sub" id="dk-ticket-sub">—</div></div>
     </div>
     <div class="dash-row">
       <div class="dash-card"><div class="dash-card-title">STATUS CRM</div><div class="dash-crm-bar" id="dash-crm-bar"></div><div class="dash-legend" id="dash-crm-legend"></div></div>
@@ -1621,7 +1620,6 @@ function _renderResumoCRM(p, crm) {
 
   return `
     <div style="padding:1.2rem 1.5rem">
-      <!-- Cabeçalho mini-proposta -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;line-height:1">${p.cliente.toUpperCase()}</div>
@@ -1632,8 +1630,6 @@ function _renderResumoCRM(p, crm) {
           ${crm.descontoPct > 0 ? `<div style="font-size:0.65rem;color:#FFC20E;font-family:'DM Mono',monospace">orig. R$ ${Number(p.total).toLocaleString('pt-BR')} · −${crm.descontoPct}%</div>` : ''}
         </div>
       </div>
-
-      <!-- Grid de info -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:1rem">
         ${[
           ['Referência', p.ref],
@@ -1647,16 +1643,12 @@ function _renderResumoCRM(p, crm) {
           <div style="font-size:0.78rem;color:#ccc;font-weight:500">${v || '—'}</div>
         </div>`).join('')}
       </div>
-
-      <!-- Entregáveis resumidos -->
       <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:0.8rem 1rem;margin-bottom:0.8rem">
         <div style="font-size:0.6rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:2px;margin-bottom:8px">INCLUSO</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px">
           ${entregaveis.map(e => `<span style="background:#1a1a1a;border:1px solid #2a2a2a;color:#aaa;font-size:0.65rem;padding:3px 8px;border-radius:3px">→ ${e}</span>`).join('')}
         </div>
       </div>
-
-      <!-- Status atual + celular -->
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
         <span style="font-family:'DM Mono',monospace;font-size:0.65rem;border:1px solid ${cor};color:${cor};padding:3px 10px;border-radius:3px">${statusLabel[crm.status] || crm.status}</span>
         ${p.celular ? `<span style="font-size:0.72rem;color:#555">📱 ${p.celular}</span>` : ''}
@@ -1671,7 +1663,6 @@ function abrirModalCRM(ref) {
   _crmValorOriginal = Number(p.total) || 0;
   _resumoCRMAberto = false;
 
-  // Preencher resumo (oculto por padrão)
   const resumoEl = document.getElementById('crm-resumo-proposta');
   resumoEl.innerHTML = _renderResumoCRM(p, crm);
   resumoEl.style.display = 'none';
@@ -1703,7 +1694,6 @@ function salvarStatusCRM() {
   salvarCRM();
   document.getElementById('modal-crm').style.display = 'none';
   renderKanban(); atualizarBadgeCRM();
-  // ── NOVO v1.6: oferecer envio ao Contas a Receber ao marcar GANHO ──
   if (status === 'ganho') {
     setTimeout(() => {
       if (confirm(`✅ Proposta ${ref} marcada como GANHO!\n\nDeseja enviar agora ao Contas a Receber?`)) {
@@ -1743,7 +1733,6 @@ function renderKanban() {
     if (cards.length === 0) { cont.innerHTML = '<div style="padding:1rem;text-align:center;color:#333;font-size:0.75rem">Nenhuma proposta</div>'; return; }
     cont.innerHTML = cards.map(({p, crm}) => {
       const dias = diasDesde(p.data); const alerta = col === 'pendente' && dias >= 3;
-      // Badge de remessa para coluna GANHO
       const jaEnviado = crm.remessaEnviada;
       const remessaHTML = col === 'ganho'
         ? jaEnviado
@@ -1830,10 +1819,11 @@ function filtrarPor(val, el) {
 function atualizarStats(lista) {
   const total = lista.length;
   const volume = lista.reduce((s,p) => s + Number(p.total), 0);
-  const media = total > 0 ? Math.round(volume/total) : 0;
+  const totalHoras = lista.reduce((s,p) => s + Number(p.horas||0), 0);
+  const media = totalHoras > 0 ? Math.round(volume / totalHoras) : 0;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-valor').textContent = 'R$ ' + volume.toLocaleString('pt-BR');
-  document.getElementById('stat-media').textContent = 'R$ ' + media.toLocaleString('pt-BR');
+  document.getElementById('stat-media').textContent = totalHoras > 0 ? 'R$ ' + media.toLocaleString('pt-BR') : '—';
 }
 function renderHistorico() {
   const termo = (document.getElementById('hist-input')?.value || '').toLowerCase().trim();
@@ -1878,28 +1868,31 @@ function renderHistorico() {
     </div>`;
   }).join('');
 }
+
+// ══════════════════════════════════════════
+// FIX v1.8 — reabrirProposta
+// Renderiza direto do p.total gravado — não recalcula
+// ══════════════════════════════════════════
 function reabrirProposta(refOrIdx) {
   const p = typeof refOrIdx === 'string' ? historicoPropostas.find(x => x.ref === refOrIdx) : historicoPropostas[refOrIdx];
   if (!p) return;
   showSection('proposta');
   setTimeout(() => {
+    // Preenche campos do formulário (para contexto visual) mas não usa no cálculo
     document.getElementById('f-cliente').value = p.cliente || '';
     document.getElementById('f-responsavel').value = p.responsavel || '';
     document.getElementById('f-tipo').value = p.tipo || 'Podcast Corporativo';
     document.getElementById('f-celular').value = p.celular || '';
 
-    // Restaurar taxa — garante valor numérico válido
     const taxaValida = [630, 800, 1100];
     const taxaNum = parseInt(p.taxa);
     const taxaFinal = taxaValida.includes(taxaNum) ? taxaNum : 800;
-    document.getElementById('f-nivel').value = taxaFinal;
+    document.getElementById('f-nivel').value = String(taxaFinal);
 
-    // Restaurar studio
     const studioCode = p.studioCode || 'A';
     document.getElementById('f-studio').value = studioCode;
     document.querySelectorAll('.studio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === studioCode));
 
-    // Restaurar modo
     const modo = p.modo || 'hora';
     modoAtual = modo;
     document.getElementById('f-modo').value = modo;
@@ -1923,9 +1916,8 @@ function reabrirProposta(refOrIdx) {
         numDiariasAtual = parseInt(p.numDiarias);
         horasDiariaAtual = parseInt(p.horasDiaria);
       } else {
-        // Inferir diárias a partir do total de horas
         const totalH = parseInt(p.horas) || 4;
-        horasDiariaAtual = 4; // padrão seguro
+        horasDiariaAtual = 4;
         numDiariasAtual = Math.round(totalH / horasDiariaAtual) || 1;
       }
       document.getElementById('f-nd-num').textContent = numDiariasAtual;
@@ -1933,10 +1925,76 @@ function reabrirProposta(refOrIdx) {
       document.getElementById('f-dd-num').textContent = descontoDiariasAtual;
     }
 
-    atualizarPreco();
-    gerarProposta(true);
+    // Renderiza proposta com valor exatamente como foi gravado (não recalcula)
+    _renderPropostaHistorico(p);
   }, 150);
 }
+
+// Renderiza a proposta usando os dados gravados no histórico — sem recalcular
+function _renderPropostaHistorico(p) {
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const validade = new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString('pt-BR');
+  const studioMap = { A: 'Studio A (Sala 154)', B: 'Studio B (Sala 181)', AB: 'Studio A + Studio B' };
+  const studioLabel = p.studio || studioMap[p.studioCode] || 'Studio A';
+  const totalGravado = Number(p.total);
+  const taxa = Number(p.taxa) || 800;
+  const modoLabel = { hora: 'Por Hora', 'pacote-horas': 'Pacote de Horas', 'pacote-diarias': 'Pacote de Diárias' };
+  const descPct = Number(p.desconto) || 0;
+
+  let duracaoLabel, detalheFmt;
+  if (p.modo === 'pacote-diarias' && p.numDiarias) {
+    duracaoLabel = `${p.numDiarias} diária(s) de ${p.horasDiaria}h`;
+    detalheFmt = `${p.numDiarias} diárias × ${p.horasDiaria}h × R$ ${taxa.toLocaleString('pt-BR')}/h${descPct > 0 ? ' (−' + descPct + '%)' : ''}`;
+  } else if (p.modo === 'pacote-horas') {
+    duracaoLabel = `Pacote ${p.pacoteHoras || p.horas}h/mês`;
+    detalheFmt = `Pacote ${p.pacoteHoras || p.horas}h/mês × R$ ${taxa.toLocaleString('pt-BR')}/h${descPct > 0 ? ' (−' + descPct + '%)' : ''}`;
+  } else {
+    duracaoLabel = (p.horas || 0) + 'h';
+    detalheFmt = `${p.horas}h × R$ ${taxa.toLocaleString('pt-BR')}/h${descPct > 0 ? ' (−' + descPct + '%)' : ''}`;
+  }
+
+  const nomeCompleto = p.responsavel ? `${p.cliente} — ${p.responsavel}` : p.cliente;
+  document.getElementById('out-titulo').textContent = 'Proposta para ' + nomeCompleto;
+  document.getElementById('out-meta').textContent = `Emitida em: ${p.data || hoje}  ·  Válida até: ${validade}  ·  Ref: ${p.ref}`;
+  document.getElementById('out-entendimento').textContent = `Com base no contato inicial, entendemos que ${p.cliente} busca um ambiente profissional para produção de ${p.tipo}. Pensando no perfil do projeto, indicamos o ${studioLabel} da WEN Produtora — estrutura que combina padrão técnico elevado com organização operacional completa.`;
+
+  const economia = descPct > 0 ? Math.round((taxa * (p.horas || 1)) / (1 - descPct/100) * (descPct/100)) : 0;
+  document.getElementById('out-solucao-grid').innerHTML = `
+    <div class="prop-card"><div class="prop-card-label">Estúdio</div><div class="prop-card-value">${studioLabel}</div></div>
+    <div class="prop-card"><div class="prop-card-label">Formato</div><div class="prop-card-value">${p.tipo}</div></div>
+    <div class="prop-card"><div class="prop-card-label">Duração / Formato</div><div class="prop-card-value">${duracaoLabel}</div></div>
+    <div class="prop-card"><div class="prop-card-label">Taxa/hora</div><div class="prop-card-value">R$ ${taxa.toLocaleString('pt-BR')}</div></div>
+    ${descPct > 0 ? `<div class="prop-card" style="border-color:rgba(132,204,22,0.3)"><div class="prop-card-label">Desconto Aplicado</div><div class="prop-card-value" style="color:var(--verde-wen)">−${descPct}%</div></div>` : ''}
+  `;
+
+  const entregaveis800 = ['4 câmeras Sony 4K com lente prime','Microfones Shure/TASCAM','Switcher ATEM ISO','Iluminação cinema','Equipe completa','Open bar + coffee break','Internet dedicada'];
+  const entregaveis630 = ['Studio B 180m²','4 câmeras Sony 4K','Áudio Rodecaster Pro 2','Equipe completa','Open bar'];
+  const entregaveis1100 = ['Tudo do Profissional','Direção criativa','Edição completa','Cortes para redes','Thumbnail + arte'];
+  const listaEntregaveis = taxa === 630 ? entregaveis630 : taxa === 1100 ? entregaveis1100 : entregaveis800;
+
+  document.getElementById('out-entregaveis').innerHTML = listaEntregaveis.map(e => `<li>${e}</li>`).join('');
+  document.getElementById('out-personalizado').style.display = 'none';
+
+  // ── VALOR EXATAMENTE COMO GRAVADO ──
+  document.getElementById('out-valor').textContent = 'R$ ' + totalGravado.toLocaleString('pt-BR');
+  document.getElementById('out-detalhe').textContent = detalheFmt;
+
+  let badgeHTML = `Válido por 7 dias<br>Sinal: 50% para reserva<br>Restante no dia`;
+  if (descPct > 0) badgeHTML = `✦ Desconto de ${descPct}% aplicado<br>Sinal: 50% para reserva`;
+  document.getElementById('out-badge').innerHTML = badgeHTML;
+
+  document.getElementById('proposta-output').style.display = 'block';
+  document.getElementById('proposta-output').scrollIntoView({ behavior: 'smooth' });
+
+  // WhatsApp com valor gravado
+  _wppTexto = gerarTextoWhatsApp({
+    cliente: p.cliente, responsavel: p.responsavel, tipo: p.tipo, studioLabel, duracaoLabel,
+    totalFmt: 'R$ ' + totalGravado.toLocaleString('pt-BR'),
+    detalheFmt, desconto: descPct, economia: economia > 0 ? 'R$ ' + economia.toLocaleString('pt-BR') : '',
+    faixaNome: '', ref: p.ref, hoje: p.data || hoje, validade, valorEdicao: 0
+  });
+}
+
 async function excluirPropostaCliente(ref) {
   const p = historicoPropostas.find(x => x.ref === ref);
   if (!p) return;
@@ -2023,13 +2081,13 @@ function renderDashboard() {
     subTicket = `baseado em ${totalHoras}h orçadas`;
   }
   document.getElementById('dk-total').textContent = total;
+  document.getElementById('dk-horas').textContent = totalHoras + 'h';
   document.getElementById('dk-volume').textContent = 'R$ ' + (volume/1000 >= 10 ? (volume/1000).toFixed(0)+'k' : volume.toLocaleString('pt-BR'));
-  document.getElementById('dk-ticket').textContent = 'R$ ' + ticket.toLocaleString('pt-BR');
-  document.getElementById('dk-conv').textContent = conv + '%';
+  document.getElementById('dk-ticket').textContent = totalHoras > 0 ? 'R$ ' + ticket.toLocaleString('pt-BR') : '—';
   document.getElementById('dk-total-sub').textContent = subTotal;
+  document.getElementById('dk-horas-sub').textContent = totalHoras > 0 ? `média ${(totalHoras/Math.max(total,1)).toFixed(1)}h por proposta` : '—';
   document.getElementById('dk-volume-sub').textContent = subVolume;
-  document.getElementById('dk-ticket-sub').textContent = subTicket;
-  document.getElementById('dk-conv-sub').textContent = `${ganhosTotal} ganho${ganhosTotal!==1?'s':''} de ${historicoPropostas.length} total`;
+  document.getElementById('dk-ticket-sub').textContent = totalHoras > 0 ? `R$ ${volume.toLocaleString('pt-BR')} ÷ ${totalHoras}h` : 'sem horas registradas';
   const crmCounts = { pendente:0, ganho:0, perdido:0, semresposta:0 };
   historicoPropostas.forEach(p => { const s = getCRMStatus(p.ref).status; if (crmCounts[s] !== undefined) crmCounts[s]++; });
   const crmTotal = Object.values(crmCounts).reduce((a,b) => a+b, 0) || 1;
@@ -2225,7 +2283,7 @@ function renderMetaWidget(lancamentos) {
 }
 
 // ══════════════════════════════════════════
-// INTEGRAÇÃO CONTAS A RECEBER — v1.6
+// INTEGRAÇÃO CONTAS A RECEBER — v1.7
 // ══════════════════════════════════════════
 function _toFVR(v) {
   if (v === null || v === undefined) return { nullValue: null };
@@ -2243,7 +2301,6 @@ function _toFVR(v) {
 
 function gerarIdReceber() { return 'WEN' + Date.now() + Math.floor(Math.random()*100); }
 
-// ── helpers de data/studio compartilhados ──
 function _formatarData(isoDate) {
   if (!isoDate) return '-';
   const [a, m, d] = isoDate.split('-'); return `${d}/${m}`;
@@ -2260,7 +2317,6 @@ function _formatarStudio(s) {
     .replace('STUDIO A + STUDIO B','STUDIO A');
 }
 
-// Monta UM lançamento (usado tanto no modo simples quanto por diária)
 function montarUmLancamento(proposta, valor, horas, dadosExtra, sufixo) {
   const horasNum = Number(horas) || 0;
   const descGerado = horasNum > 0 ? `1 DIÁRIA DE ${horasNum} HORA${horasNum > 1 ? 'S' : ''}` : proposta.tipo || 'GRAVAÇÃO';
@@ -2280,14 +2336,12 @@ function montarUmLancamento(proposta, valor, horas, dadosExtra, sufixo) {
   };
 }
 
-// Retorna array de lançamentos (1 para simples/pacote-horas, N para pacote-diarias)
 function montarLancamentos(ref) {
   const proposta = historicoPropostas.find(p => p.ref === ref); if (!proposta) return [];
   const crm = getCRMStatus(ref);
   const valorTotal = crm.descontoPct > 0 && crm.valorNegociado > 0 ? crm.valorNegociado : Number(proposta.total);
 
   if (proposta.modo === 'pacote-diarias' && proposta.numDiarias > 1) {
-    // Modo multi-diária: ler campos dinamicamente
     const nd = Number(proposta.numDiarias) || 1;
     const lancamentos = [];
     for (let i = 0; i < nd; i++) {
@@ -2304,7 +2358,6 @@ function montarLancamentos(ref) {
     return lancamentos;
   }
 
-  // Modo simples (hora ou pacote-horas): lançamento único
   return [montarUmLancamento(proposta, valorTotal, proposta.horas, {
     dataGravacao: document.getElementById('rem-data-gravacao')?.value || '',
     horario: document.getElementById('rem-horario')?.value?.trim() || '',
@@ -2335,7 +2388,6 @@ function baixarJsonRemessa(lancamentos) {
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-// ── Renderiza corpo do modal conforme o modo ──
 function _renderCorpoRemessa(proposta, crm) {
   const valorTotal = crm.descontoPct > 0 && crm.valorNegociado > 0 ? crm.valorNegociado : Number(proposta.total);
   const isMultiDiaria = proposta.modo === 'pacote-diarias' && Number(proposta.numDiarias) > 1;
@@ -2347,7 +2399,6 @@ function _renderCorpoRemessa(proposta, crm) {
   if (!corpo) return;
 
   if (!isMultiDiaria) {
-    // MODO SIMPLES
     const sugestao = new Date(Date.now() + 7*24*60*60*1000).toISOString().slice(0,10);
     corpo.innerHTML = `
       <div style="background:#0a0a0a;border:1px solid #1a3a1a;border-radius:10px;padding:1rem">
@@ -2368,7 +2419,6 @@ function _renderCorpoRemessa(proposta, crm) {
       </details>`;
     setTimeout(atualizarPreviewRemessa, 50);
   } else {
-    // MODO MULTI-DIÁRIA
     const sugestaoBase = new Date(Date.now() + 7*24*60*60*1000);
     let linhas = '';
     for (let i = 0; i < nd; i++) {
@@ -2429,7 +2479,6 @@ function abrirModalRemessa(ref) {
   const isMulti = proposta.modo === 'pacote-diarias' && Number(proposta.numDiarias) > 1;
   const nd = Number(proposta.numDiarias) || 1;
 
-  // Recriar modal sempre para limpar estado anterior
   const existing = document.getElementById('modal-remessa');
   if (existing) existing.remove();
 
@@ -2466,7 +2515,6 @@ function abrirModalRemessa(ref) {
 function atualizarPreviewRemessa() {
   const refEl = document.querySelector('#modal-remessa #rem-sub-titulo');
   if (!refEl) return;
-  // Achar ref atual pelo sub-título
   const refMatch = refEl.textContent.match(/WEN-\d+/);
   if (!refMatch) return;
   const ref = refMatch[0];
@@ -2474,7 +2522,6 @@ function atualizarPreviewRemessa() {
   const pre = document.getElementById('rem-json-preview');
   if (pre) pre.textContent = JSON.stringify({ registros: lista }, null, 2);
 
-  // Atualizar preview simples se existir
   const grid = document.getElementById('rem-preview-grid');
   if (grid && lista.length === 1) {
     const lanc = lista[0];
