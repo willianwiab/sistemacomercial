@@ -475,6 +475,7 @@ function backupImportar(input) {
     <button class="nav-tab" id="tab-crm" onclick="showSection('crm',this)">CRM</button>
     <button class="nav-tab" id="tab-historico" onclick="showSection('historico',this)">Histórico</button>
     <button class="nav-tab" id="tab-dashboard" onclick="showSection('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-tab" id="tab-ia" onclick="showSection('ia',this)" style="background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed55">✦ IA Briefing</button>
     <button class="nav-tab" onclick="backupExportar()" style="margin-left:auto;background:#1a3a1a;color:#4caf50;border:1px solid #4caf50">💾 Backup</button>
     <label class="nav-tab" style="cursor:pointer;background:#1a2a3a;color:#64b5f6;border:1px solid #64b5f6">📂 Restaurar<input type="file" accept=".json" onchange="backupImportar(this)" style="display:none"></label>
   </div>
@@ -2593,6 +2594,327 @@ window.addEventListener('load', () => {
 </script>
 
 <!-- NAV MOBILE INFERIOR -->
+<!-- ═══════════ SEÇÃO: IA BRIEFING ═══════════ -->
+<section id="ia" class="section">
+  <div class="container">
+    <p class="section-eyebrow">Inteligência Artificial</p>
+    <h1 class="section-title">✦ IA <span>BRIEFING</span></h1>
+    <p class="section-sub">Cole o texto do cliente — email, WhatsApp, qualquer formato. A IA analisa e sugere como preencher a proposta.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start" id="ia-layout">
+
+      <!-- COLUNA ESQUERDA: input -->
+      <div>
+        <div style="background:var(--cinza);border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;margin-bottom:12px">
+          <div style="background:#0d0d1a;border-bottom:1px solid #2a2a2a;padding:10px 16px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:0.9rem">📋</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:2px;color:#a78bfa">TEXTO DO CLIENTE</span>
+          </div>
+          <div style="padding:12px">
+            <textarea id="ia-input" placeholder="Cole aqui o email, mensagem de WhatsApp, briefing ou qualquer texto com as necessidades do cliente...
+
+Exemplos:
+• 'Oi, preciso gravar um podcast de 3 horas no próximo mês...'
+• 'Olá, somos da empresa XYZ e gostaríamos de um orçamento...'
+• Emails completos, prints descritos, qualquer formato" style="width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;color:var(--branco);font-family:'DM Sans',sans-serif;font-size:0.85rem;line-height:1.7;padding:14px;min-height:280px;resize:vertical;outline:none;transition:border 0.2s" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#2a2a2a'"></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <button onclick="analisarBriefing()" id="btn-analisar" style="flex:1;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:white;border:none;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;padding:13px 20px;border-radius:8px;cursor:pointer;transition:all 0.2s;min-width:160px">✦ ANALISAR COM IA</button>
+              <button onclick="limparIA()" style="background:transparent;border:1px solid #333;color:#666;font-family:'DM Sans',sans-serif;font-size:0.8rem;padding:13px 16px;border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#666'">Limpar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HISTÓRICO DE CHATS -->
+        <div id="ia-chat-hist" style="display:none;background:var(--cinza);border:1px solid #2a2a2a;border-radius:12px;overflow:hidden">
+          <div style="background:#0d0d1a;border-bottom:1px solid #2a2a2a;padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:2px;color:#a78bfa">CONVERSA</span>
+            <button onclick="document.getElementById('ia-chat-hist').style.display='none'" style="background:none;border:none;color:#555;cursor:pointer;font-size:0.8rem">✕ fechar</button>
+          </div>
+          <div id="ia-chat-msgs" style="padding:12px;display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto"></div>
+          <div style="padding:12px;border-top:1px solid #1a1a1a;display:flex;gap:8px">
+            <input type="text" id="ia-followup" placeholder="Pergunte algo ou refine a análise..." style="flex:1;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:6px;color:var(--branco);font-family:'DM Sans',sans-serif;font-size:0.85rem;padding:10px 12px;outline:none" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#2a2a2a'" onkeydown="if(event.key==='Enter')enviarFollowup()" />
+            <button onclick="enviarFollowup()" style="background:#7c3aed;color:white;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-size:1rem">↑</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA: resultado -->
+      <div id="ia-resultado-col">
+        <div id="ia-placeholder" style="background:var(--cinza);border:1px dashed #2a2a2a;border-radius:12px;padding:3rem 2rem;text-align:center">
+          <div style="font-size:3rem;margin-bottom:1rem;opacity:0.3">✦</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:#444;margin-bottom:8px">AGUARDANDO ANÁLISE</div>
+          <div style="font-size:0.82rem;color:#333;line-height:1.6">Cole o texto do cliente ao lado<br>e clique em Analisar com IA</div>
+        </div>
+
+        <div id="ia-resultado" style="display:none">
+          <!-- CARD DE RESUMO IA -->
+          <div style="background:linear-gradient(135deg,#0d0a1f,#0a0a0a);border:1px solid #7c3aed44;border-radius:12px;overflow:hidden;margin-bottom:12px">
+            <div style="background:#0d0a1f;border-bottom:1px solid #7c3aed33;padding:10px 16px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:0.9rem">🤖</span>
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:2px;color:#a78bfa">ANÁLISE DA IA</span>
+              <span id="ia-loading-badge" style="display:none;font-family:'DM Mono',monospace;font-size:0.6rem;color:#7c3aed;border:1px solid #7c3aed44;padding:2px 8px;border-radius:3px;margin-left:auto">ANALISANDO...</span>
+            </div>
+            <div id="ia-resumo-texto" style="padding:14px 16px;font-size:0.85rem;line-height:1.8;color:#ccc;min-height:80px"></div>
+          </div>
+
+          <!-- CAMPOS SUGERIDOS -->
+          <div style="background:var(--cinza);border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;margin-bottom:12px">
+            <div style="background:#111;border-bottom:1px solid #2a2a2a;padding:10px 16px">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:2px;color:#84CC16">CAMPOS SUGERIDOS</span>
+            </div>
+            <div id="ia-campos" style="padding:12px;display:grid;gap:8px"></div>
+          </div>
+
+          <!-- BOTÃO APLICAR -->
+          <button onclick="aplicarSugestao()" id="btn-aplicar-ia" style="width:100%;background:var(--verde-wen);color:#0a0a0a;border:none;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;padding:15px;border-radius:8px;cursor:pointer;transition:all 0.2s">→ APLICAR NA PROPOSTA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+@media (max-width:700px) {
+  #ia-layout { grid-template-columns: 1fr !important; }
+}
+.ia-campo-card {
+  background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.ia-campo-card.confiante { border-color:#84CC1644; }
+.ia-campo-card.incerto { border-color:#FFC20E44; }
+.ia-campo-label { font-size:0.62rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px; }
+.ia-campo-val { font-size:0.88rem;color:var(--branco);font-weight:500; }
+.ia-campo-conf { font-size:0.6rem;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:3px; }
+.ia-typing { display:inline-block; }
+.ia-typing::after { content:'▋';animation:blink 0.8s step-end infinite; }
+@keyframes blink { 50% { opacity:0; } }
+</style>
+
+<script>
+// ══════════════════════════════════════════
+// IA BRIEFING — Sistema Comercial WEN
+// ══════════════════════════════════════════
+let _iaSugestao = null;
+let _iaHistorico = [];
+
+const IA_SYSTEM = `Você é um assistente comercial da WEN Produtora, estúdio de podcast e produção em vídeo localizado em São Paulo (Rua Haddock Lobo 1307).
+
+PACOTES DISPONÍVEIS:
+- Essencial: R$ 630/h, Studio B (180m²), mínimo 3h
+- Profissional: R$ 800/h, Studio A (100m²), mínimo 2h, desconto progressivo até 20% em 6h+
+- Premium Plateia: R$ 1.100/h, Studio B com plateia, mínimo 4h
+
+MODOS DE PRECIFICAÇÃO: Por Hora | Pacote de Horas (banco mensal) | Pacote de Diárias
+
+Sua tarefa: analisar o texto do cliente e extrair as informações para preencher uma proposta comercial.
+
+RESPONDA SEMPRE EM JSON puro, sem markdown, sem texto fora do JSON, com esta estrutura exata:
+{
+  "resumo": "2-3 frases descrevendo o que o cliente precisa e sua recomendação",
+  "campos": {
+    "cliente": {"valor": "nome da empresa ou pessoa", "confianca": "alta|media|baixa"},
+    "responsavel": {"valor": "nome do responsável", "confianca": "alta|media|baixa"},
+    "tipo": {"valor": "um dos tipos: Podcast Corporativo|Entrevista Executiva|Gravação Institucional|Transmissão Híbrida / Live|Evento com Plateia|Workshop Gravado|Videocast|Gravação de Curso Online|Video Aula", "confianca": "alta|media|baixa"},
+    "studio": {"valor": "A|B|AB", "confianca": "alta|media|baixa"},
+    "nivel": {"valor": "630|800|1100", "confianca": "alta|media|baixa"},
+    "modo": {"valor": "hora|pacote-horas|pacote-diarias", "confianca": "alta|media|baixa"},
+    "horas": {"valor": numero, "confianca": "alta|media|baixa"},
+    "celular": {"valor": "telefone se mencionado ou vazio", "confianca": "alta|media|baixa"},
+    "necessidade": {"valor": "resumo do briefing em 1-2 frases para o campo de observações", "confianca": "alta"}
+  },
+  "alertas": ["lista de dúvidas ou pontos que precisam confirmação do cliente"]
+}`;
+
+async function analisarBriefing() {
+  const texto = document.getElementById('ia-input').value.trim();
+  if (!texto) { mostrarToast('Cole o texto do cliente primeiro', '#FFC20E'); return; }
+
+  const btn = document.getElementById('btn-analisar');
+  btn.textContent = '⏳ ANALISANDO...'; btn.disabled = true; btn.style.opacity = '0.7';
+  document.getElementById('ia-placeholder').style.display = 'none';
+  document.getElementById('ia-resultado').style.display = 'block';
+  document.getElementById('ia-loading-badge').style.display = 'inline';
+  document.getElementById('ia-resumo-texto').innerHTML = '<span class="ia-typing">Lendo o briefing</span>';
+  document.getElementById('ia-campos').innerHTML = '';
+
+  _iaHistorico = [{ role: 'user', content: texto }];
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: IA_SYSTEM,
+        messages: _iaHistorico
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '';
+    _iaHistorico.push({ role: 'assistant', content: raw });
+    processarResposta(raw);
+    document.getElementById('ia-chat-hist').style.display = 'block';
+    renderChatMsgs();
+  } catch(e) {
+    document.getElementById('ia-resumo-texto').textContent = '❌ Erro ao conectar com a IA: ' + e.message;
+    mostrarToast('Erro IA: ' + e.message, '#C0272D');
+  } finally {
+    btn.textContent = '✦ ANALISAR COM IA'; btn.disabled = false; btn.style.opacity = '1';
+    document.getElementById('ia-loading-badge').style.display = 'none';
+  }
+}
+
+async function enviarFollowup() {
+  const input = document.getElementById('ia-followup');
+  const msg = input.value.trim(); if (!msg) return;
+  input.value = '';
+  _iaHistorico.push({ role: 'user', content: msg });
+  renderChatMsgs();
+
+  const loadEl = document.createElement('div');
+  loadEl.style.cssText = 'padding:8px 12px;background:#1a0a2e;border-radius:8px 8px 8px 0;font-size:0.82rem;color:#a78bfa';
+  loadEl.innerHTML = '<span class="ia-typing">Processando</span>';
+  document.getElementById('ia-chat-msgs').appendChild(loadEl);
+  document.getElementById('ia-chat-msgs').scrollTop = 99999;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: IA_SYSTEM,
+        messages: _iaHistorico
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '';
+    _iaHistorico.push({ role: 'assistant', content: raw });
+    loadEl.remove();
+    processarResposta(raw);
+    renderChatMsgs();
+  } catch(e) {
+    loadEl.textContent = '❌ ' + e.message;
+  }
+}
+
+function processarResposta(raw) {
+  try {
+    const json = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    _iaSugestao = json;
+
+    // Resumo
+    document.getElementById('ia-resumo-texto').innerHTML = escapeHtml(json.resumo || '—') +
+      (json.alertas?.length ? '<div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">' +
+        json.alertas.map(a => `<div style="display:flex;align-items:flex-start;gap:6px;font-size:0.78rem;color:#FFC20E"><span style="flex-shrink:0">⚠</span>${escapeHtml(a)}</div>`).join('') + '</div>' : '');
+
+    // Campos
+    const LABELS = {
+      cliente:'Cliente / Empresa', responsavel:'Responsável', tipo:'Tipo de Projeto',
+      studio:'Estúdio', nivel:'Pacote / Taxa', modo:'Modo de Precificação',
+      horas:'Horas', celular:'Celular', necessidade:'Observações / Briefing'
+    };
+    const NIVEL_LABEL = { '630':'Essencial (R$ 630/h)', '800':'Profissional (R$ 800/h)', '1100':'Premium Plateia (R$ 1.100/h)' };
+    const MODO_LABEL = { 'hora':'Por Hora', 'pacote-horas':'Pacote de Horas', 'pacote-diarias':'Pacote de Diárias' };
+    const STUDIO_LABEL = { 'A':'Studio A', 'B':'Studio B', 'AB':'Ambos' };
+
+    const campos = json.campos || {};
+    document.getElementById('ia-campos').innerHTML = Object.entries(campos).map(([k, v]) => {
+      if (!v?.valor && v?.valor !== 0) return '';
+      let exibir = String(v.valor);
+      if (k === 'nivel') exibir = NIVEL_LABEL[exibir] || exibir;
+      if (k === 'modo') exibir = MODO_LABEL[exibir] || exibir;
+      if (k === 'studio') exibir = STUDIO_LABEL[exibir] || exibir;
+      if (k === 'horas') exibir = exibir + 'h';
+      const conf = v.confianca || 'media';
+      const confCor = conf === 'alta' ? '#84CC16' : conf === 'media' ? '#FFC20E' : '#f87171';
+      const confLabel = conf === 'alta' ? '✓ alta' : conf === 'media' ? '~ média' : '? baixa';
+      return `<div class="ia-campo-card ${conf === 'alta' ? 'confiante' : 'incerto'}">
+        <div><div class="ia-campo-label">${LABELS[k]||k}</div><div class="ia-campo-val">${escapeHtml(exibir)}</div></div>
+        <span class="ia-campo-conf" style="color:${confCor};background:${confCor}18;border:1px solid ${confCor}44">${confLabel}</span>
+      </div>`;
+    }).join('');
+
+    document.getElementById('btn-aplicar-ia').style.display = 'block';
+  } catch(e) {
+    // Resposta em texto livre (follow-up não estruturado)
+    document.getElementById('ia-resumo-texto').textContent = raw;
+    document.getElementById('btn-aplicar-ia').style.display = 'none';
+  }
+}
+
+function aplicarSugestao() {
+  if (!_iaSugestao?.campos) return;
+  const c = _iaSugestao.campos;
+
+  showSection('proposta');
+  setTimeout(() => {
+    if (c.cliente?.valor)     document.getElementById('f-cliente').value = c.cliente.valor;
+    if (c.responsavel?.valor) document.getElementById('f-responsavel').value = c.responsavel.valor;
+    if (c.celular?.valor)     document.getElementById('f-celular').value = c.celular.valor;
+    if (c.necessidade?.valor) document.getElementById('f-necessidade').value = c.necessidade.valor;
+    if (c.tipo?.valor)        document.getElementById('f-tipo').value = c.tipo.valor;
+
+    if (c.nivel?.valor) {
+      document.getElementById('f-nivel').value = String(c.nivel.valor);
+      onNivelChange();
+    }
+    if (c.studio?.valor) {
+      const sc = c.studio.valor;
+      document.getElementById('f-studio').value = sc;
+      document.querySelectorAll('.studio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === sc));
+    }
+    if (c.modo?.valor) {
+      const modo = c.modo.valor;
+      modoAtual = modo;
+      document.getElementById('f-modo').value = modo;
+      document.querySelectorAll('.modo-opt').forEach(b => b.classList.toggle('active', b.dataset.modo === modo));
+      document.getElementById('bloco-hora').style.display = modo === 'hora' ? '' : 'none';
+      document.getElementById('bloco-pacote-horas').style.display = modo === 'pacote-horas' ? '' : 'none';
+      document.getElementById('bloco-pacote-diarias').style.display = modo === 'pacote-diarias' ? '' : 'none';
+    }
+    if (c.horas?.valor && modoAtual === 'hora') {
+      const minH = getMinHoras();
+      horasAtual = Math.max(minH, Number(c.horas.valor) || minH);
+      document.getElementById('f-horas-num').textContent = horasAtual;
+      atualizarBadgeFaixa(horasAtual);
+    }
+    atualizarPreco();
+    mostrarToast('✦ Proposta preenchida com os dados da IA!', '#7c3aed');
+  }, 200);
+}
+
+function renderChatMsgs() {
+  const cont = document.getElementById('ia-chat-msgs');
+  cont.innerHTML = _iaHistorico.map(m => {
+    const isUser = m.role === 'user';
+    let preview = m.content;
+    if (!isUser) {
+      try {
+        const j = JSON.parse(m.content.replace(/```json|```/g,'').trim());
+        preview = j.resumo || m.content.slice(0, 120) + '...';
+      } catch { preview = m.content.slice(0, 120) + (m.content.length > 120 ? '...' : ''); }
+    }
+    return `<div style="display:flex;justify-content:${isUser?'flex-end':'flex-start'}">
+      <div style="max-width:85%;padding:8px 12px;border-radius:${isUser?'8px 8px 0 8px':'8px 8px 8px 0'};background:${isUser?'#7c3aed':'#1a0a2e'};font-size:0.78rem;line-height:1.5;color:${isUser?'#fff':'#a78bfa'}">${escapeHtml(preview)}</div>
+    </div>`;
+  }).join('');
+  cont.scrollTop = 99999;
+}
+
+function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function limparIA() {
+  document.getElementById('ia-input').value = '';
+  document.getElementById('ia-resultado').style.display = 'none';
+  document.getElementById('ia-placeholder').style.display = 'block';
+  document.getElementById('ia-chat-hist').style.display = 'none';
+  _iaSugestao = null; _iaHistorico = [];
+}
+</script>
+
 <div class="mobile-nav-bar" style="display:none" id="mobile-nav">
   <button class="mobile-nav-item active" id="mn-proposta" onclick="showSection('proposta',null);mobileNav('proposta')">
     <span class="mn-icon">✦</span>Proposta
