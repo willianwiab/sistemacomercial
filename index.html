@@ -468,7 +468,7 @@ function backupImportar(input) {
 
 <nav>
   <div class="nav-logo">WEN <span>·</span> COMERCIAL</div>
-  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#84CC16;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #84CC1644;border-radius:3px;align-self:center">v1.8</div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#84CC16;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #84CC1644;border-radius:3px;align-self:center">v1.9</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('proposta',this)">Proposta</button>
     <button class="nav-tab" id="tab-clientes" onclick="showSection('clientes',this)">Clientes</button>
@@ -1444,7 +1444,8 @@ function gerarProposta(reabrir = false) {
       celular: document.getElementById('f-celular').value.trim(),
       tipo, studio: studioLabel, studioCode: studio,
       horas: modoAtual === 'hora' ? horasAtual : (modoAtual === 'pacote-horas' ? pacoteHorasAtual : numDiariasAtual * horasDiariaAtual),
-      taxa, total: c.total, modo: modoAtual, desconto: c.desconto || 0,
+      taxa, total: totalComEdicao, totalStudio: c.total, modo: modoAtual, desconto: c.desconto || 0,
+      edicaoQtd: getEdicaoInfo().qtd, edicaoValorEp: getEdicaoInfo().valEd, edicaoTotal: getEdicaoInfo().total,
       numDiarias: numDiariasAtual, horasDiaria: horasDiariaAtual, descontoDiarias: descontoDiariasAtual,
       pacoteHoras: pacoteHorasAtual, descontoPH: descontoHorasAtual
     });
@@ -1639,6 +1640,9 @@ function _renderResumoCRM(p, crm) {
           ['Projeto', p.tipo],
           ['Duração', duracaoLabel],
           ['Modo', modoLabel[p.modo] || 'Por Hora'],
+          ['Taxa/hora', p.taxa ? 'R$ ' + Number(p.taxa).toLocaleString('pt-BR') : '—'],
+          ['Desconto locação', p.desconto > 0 ? '−' + p.desconto + '%' : 'Sem desconto'],
+          ['Valor locação', 'R$ ' + Number(p.totalStudio || (Number(p.total) - Number(p.edicaoTotal||0))).toLocaleString('pt-BR')],
         ].map(([l,v]) => `<div style="background:#111;border:1px solid #1e1e1e;border-radius:6px;padding:7px 10px">
           <div style="font-size:0.58rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px">${l}</div>
           <div style="font-size:0.78rem;color:#ccc;font-weight:500">${v || '—'}</div>
@@ -1648,6 +1652,29 @@ function _renderResumoCRM(p, crm) {
         <div style="font-size:0.6rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:2px;margin-bottom:8px">INCLUSO</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px">
           ${entregaveis.map(e => `<span style="background:#1a1a1a;border:1px solid #2a2a2a;color:#aaa;font-size:0.65rem;padding:3px 8px;border-radius:3px">→ ${e}</span>`).join('')}
+        </div>
+      </div>
+      ${p.edicaoTotal > 0 ? `
+      <div style="background:#0a1220;border:1px solid #00AEEF33;border-radius:8px;padding:0.8rem 1rem;margin-bottom:0.8rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:0.6rem;color:#00AEEF;font-family:'DM Mono',monospace;letter-spacing:2px">✂️ ADD-ON · EDIÇÃO + REELS</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#00AEEF;letter-spacing:1px">R$ ${Number(p.edicaoTotal).toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          <span style="background:#111;border:1px solid #00AEEF22;color:#aaa;font-size:0.65rem;padding:3px 8px;border-radius:3px">${p.edicaoQtd} episódio${p.edicaoQtd > 1 ? 's' : ''}</span>
+          <span style="background:#111;border:1px solid #00AEEF22;color:#aaa;font-size:0.65rem;padding:3px 8px;border-radius:3px">R$ ${Number(p.edicaoValorEp).toLocaleString('pt-BR')}/ep</span>
+          <span style="background:#111;border:1px solid #00AEEF22;color:#aaa;font-size:0.65rem;padding:3px 8px;border-radius:3px">Studio: R$ ${Number(p.totalStudio || (Number(p.total) - Number(p.edicaoTotal))).toLocaleString('pt-BR')}</span>
+        </div>
+      </div>` : ''}
+      <div style="background:#0f1a0a;border:1px solid #84CC1622;border-radius:8px;padding:10px 14px;margin-bottom:0.8rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div><div style="font-size:0.58rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:1.5px">LOCAÇÃO</div><div style="font-size:0.85rem;color:#ccc;font-weight:600">R$ ${Number(p.totalStudio||(Number(p.total)-Number(p.edicaoTotal||0))).toLocaleString('pt-BR')}</div></div>
+          ${p.edicaoTotal > 0 ? `<div><div style="font-size:0.58rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:1.5px">EDIÇÃO</div><div style="font-size:0.85rem;color:#00AEEF;font-weight:600">R$ ${Number(p.edicaoTotal).toLocaleString('pt-BR')}</div></div>` : ''}
+          ${crm.descontoPct > 0 ? `<div><div style="font-size:0.58rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:1.5px">DESC. NEGOC.</div><div style="font-size:0.85rem;color:#FFC20E;font-weight:600">−${crm.descontoPct}%</div></div>` : ''}
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:0.58rem;color:#555;font-family:'DM Mono',monospace;letter-spacing:1.5px;margin-bottom:2px">TOTAL COBRADO</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#84CC16;letter-spacing:1px">R$ ${valorFinal.toLocaleString('pt-BR')}</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
@@ -1860,10 +1887,20 @@ function renderHistorico() {
           <div class="hist-info-item"><span class="hist-info-label">Tipo de Projeto</span><span class="hist-info-val">${p.tipo}</span></div>
           <div class="hist-info-item"><span class="hist-info-label">Estúdio</span><span class="hist-info-val">${p.studio}</span></div>
           <div class="hist-info-item"><span class="hist-info-label">Taxa/hora</span><span class="hist-info-val">R$ ${Number(p.taxa).toLocaleString('pt-BR')}</span></div>
+          <div class="hist-info-item"><span class="hist-info-label">Studio</span><span class="hist-info-val">R$ ${Number(p.totalStudio || (Number(p.total) - Number(p.edicaoTotal||0))).toLocaleString('pt-BR')}</span></div>
         </div>
+        ${p.edicaoTotal > 0 ? `
+        <div style="margin-top:10px;background:#0a1220;border:1px solid #00AEEF33;border-radius:7px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:0.6rem;color:#00AEEF;font-family:'DM Mono',monospace;letter-spacing:2px">✂️ ADD-ON EDIÇÃO</span>
+            <span style="background:#111;border:1px solid #00AEEF22;color:#aaa;font-size:0.65rem;padding:2px 8px;border-radius:3px">${p.edicaoQtd} ep${p.edicaoQtd>1?'s':''}</span>
+            <span style="background:#111;border:1px solid #00AEEF22;color:#aaa;font-size:0.65rem;padding:2px 8px;border-radius:3px">R$ ${Number(p.edicaoValorEp).toLocaleString('pt-BR')}/ep</span>
+          </div>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#00AEEF;letter-spacing:1px">R$ ${Number(p.edicaoTotal).toLocaleString('pt-BR')}</span>
+        </div>` : ''}
       </div>
       <div class="hist-card-foot">
-        <span class="hist-total-label">Total da proposta</span>
+        <span class="hist-total-label">Total da proposta${p.edicaoTotal > 0 ? ' (studio + edição)' : ''}</span>
         <span class="hist-total-val">R$ ${Number(p.total).toLocaleString('pt-BR')}</span>
       </div>
     </div>`;
@@ -1973,12 +2010,33 @@ function _renderPropostaHistorico(p) {
   const entregaveis1100 = ['Tudo do Profissional','Direção criativa','Edição completa','Cortes para redes','Thumbnail + arte'];
   const listaEntregaveis = taxa === 630 ? entregaveis630 : taxa === 1100 ? entregaveis1100 : entregaveis800;
 
-  document.getElementById('out-entregaveis').innerHTML = listaEntregaveis.map(e => `<li>${e}</li>`).join('');
+  let listaFinal = [...listaEntregaveis];
+  if (p.edicaoTotal > 0) {
+    listaFinal = listaFinal.concat([
+      '─── ADD-ON: EDIÇÃO + REELS ───',
+      `${p.edicaoQtd} episódio${p.edicaoQtd > 1 ? 's' : ''} — edição completa de vídeo com vinhetas, créditos e GC`,
+      `Até 10 cortes por episódio — Instagram/TikTok + YouTube`,
+      'Entrega em até 4 dias após recebimento de todo material de apoio'
+    ]);
+  }
+
+  document.getElementById('out-entregaveis').innerHTML = listaFinal.map(e =>
+    e.startsWith('───') ? `<li style="color:#00AEEF;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:2px;padding:8px 0 4px;border-bottom:1px solid #1e1e1e">${e}</li>` : `<li>${e}</li>`
+  ).join('');
   document.getElementById('out-personalizado').style.display = 'none';
 
   // ── VALOR EXATAMENTE COMO GRAVADO ──
   document.getElementById('out-valor').textContent = 'R$ ' + totalGravado.toLocaleString('pt-BR');
-  document.getElementById('out-detalhe').textContent = detalheFmt;
+
+  if (p.edicaoTotal > 0) {
+    const studioVal = Number(p.totalStudio || (totalGravado - Number(p.edicaoTotal)));
+    document.getElementById('out-detalhe').innerHTML =
+      `<span style="color:#aaa">${detalheFmt}</span>` +
+      `<span style="display:block;margin-top:4px;color:#00AEEF">✂️ + R$ ${Number(p.edicaoTotal).toLocaleString('pt-BR')} edição — ${p.edicaoQtd} ep${p.edicaoQtd>1?'s':''} × R$ ${Number(p.edicaoValorEp).toLocaleString('pt-BR')}/ep</span>` +
+      `<span style="display:block;margin-top:4px;font-size:0.8em;color:#555">Locação: R$ ${studioVal.toLocaleString('pt-BR')}  ·  Edição: R$ ${Number(p.edicaoTotal).toLocaleString('pt-BR')}  ·  Total: R$ ${totalGravado.toLocaleString('pt-BR')}</span>`;
+  } else {
+    document.getElementById('out-detalhe').textContent = detalheFmt;
+  }
 
   let badgeHTML = `Válido por 7 dias<br>Sinal: 50% para reserva<br>Restante no dia`;
   if (descPct > 0) badgeHTML = `✦ Desconto de ${descPct}% aplicado<br>Sinal: 50% para reserva`;
