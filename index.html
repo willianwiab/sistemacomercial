@@ -489,6 +489,8 @@ tfoot td{background:#16a34a;color:white;font-weight:700;padding:13px 14px}
             <button id="agFiltroSinc" onclick="setAgendaFiltro('sinc',this)">🟢 Com lançamento</button>
           </div>
           <button onclick="recarregarAgenda()" style="border:none;background:#f1f5f9;border-radius:8px;padding:6px 12px;font-size:.78rem;cursor:pointer;color:#6b7280;font-weight:600">🔄 Atualizar</button>
+          <button onclick="toggleAgendaConfig()" style="border:none;background:#e0e7ff;border-radius:8px;padding:6px 12px;font-size:.78rem;cursor:pointer;color:#4f46e5;font-weight:600">⚙️ Config</button>
+          <button onclick="desconectarAgenda()" style="border:none;background:#fee2e2;border-radius:8px;padding:6px 12px;font-size:.78rem;cursor:pointer;color:#b91c1c;font-weight:600">🔌 Desconectar</button>
         </div>
       </div>
       <div id="agendaConfigBox" class="agenda-config-url" style="display:none">
@@ -1535,6 +1537,33 @@ const ICS_IGNORADOS_KEY = 'wen_agenda_ignorados';
 
 function getProxyUrl(){return localStorage.getItem(ICS_PROXY_KEY)||'';}
 function salvarProxyUrl(url){localStorage.setItem(ICS_PROXY_KEY,url.trim());}
+
+function toggleAgendaConfig(){
+  const box=document.getElementById('agendaConfigBox');
+  const aberto=box.style.display!=='none';
+  box.style.display=aberto?'none':'block';
+  if(!aberto){
+    const inp=document.getElementById('agendaProxyUrl');
+    if(inp)inp.value=getProxyUrl();
+  }
+}
+
+function desconectarAgenda(){
+  if(!confirm('Desconectar a agenda? A URL será removida e você poderá reconfigurar.'))return;
+  localStorage.removeItem(ICS_PROXY_KEY);
+  agendaEventos=[];
+  agendaCarregada=false;
+  window._ultimosConfirmados=null;
+  window._ultimosCancelados=null;
+  const inp=document.getElementById('agendaProxyUrl');
+  if(inp)inp.value='';
+  const badge=document.getElementById('notifBadge');
+  badge.classList.remove('show');
+  document.getElementById('notifConteudo').innerHTML='<div class="notif-vazio">Configure a URL do Apps Script para receber notificações.</div>';
+  document.getElementById('agendaConfigBox').style.display='block';
+  document.getElementById('agendaLista').innerHTML='<div class="agenda-vazio">⚙️ Cole a URL do Apps Script no campo acima para reconectar.</div>';
+  toast('🔌 Agenda desconectada. Configure a URL para reconectar.');
+}
 
 function getIgnorados(){return JSON.parse(localStorage.getItem(ICS_IGNORADOS_KEY)||'[]');}
 function ignorarEvento(eventoId){
