@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1424,7 +1423,7 @@ function gerarProposta(reabrir = false) {
   const entregaveis = {
     630: ['Studio B — 180m² com cenografia modular configurável','4 câmeras Sony 4K com lente prime','Áudio Rodecaster Pro 2 + microfones Rode PodMic','Switcher ATEM Extreme 8 canais','Equipe completa: Diretor + Operador + Assistente','Open bar (café, chá, suco, refrigerante)','Camarim estruturado e recepção planejada'],
     800: ['Studio A — 100m² refinado, Haddock Lobo','4 câmeras Sony 4K com lente prime','Microfones Shure MV7 + Mixcast 4 TASCAM','Switcher ATEM Extreme ISO 8 canais','Iluminação linha cinema (Amaran 200D)','Equipe completa: Diretor + Operador + Produtor','Frigobar + Open bar + Buffet coffee break (4m)','Link dedicado de internet','⚡ Redundância elétrica disponível como contratação à parte'],
-    1100: ['Tudo do Pacote Profissional — Studio A','Direção criativa dedicada ao projeto','Edição pós-produção completa','Cortes otimizados para redes sociais','Thumbnail e arte de capa','Relatório de produção com métricas','Prioridade de agendamento']
+    1100: ['Direção criativa dedicada ao projeto','Apoio de produção para organização da plateia','Espaço extra / Lobby para catering e networking','Camarim exclusivo para convidados','Até 20 lugares para plateia','Captação com até 5 câmeras Sony 4K','Câmera + microfone dedicados para captação da plateia','Open bar de bebidas não alcoólicas (refrigerantes, sucos, café cápsula e coado)']
   };
 
   const ed = getEdicaoInfo();
@@ -1624,7 +1623,7 @@ function _renderResumoCRM(p, crm) {
 
   const entregaveis800 = ['4 câmeras Sony 4K','Microfones Shure/TASCAM','Switcher ATEM ISO','Iluminação cinema','Equipe completa','Open bar + coffee break','Internet dedicada'];
   const entregaveis630 = ['Studio B 180m²','4 câmeras Sony 4K','Áudio Rodecaster Pro 2','Equipe completa','Open bar'];
-  const entregaveis1100 = ['Tudo do Profissional','Direção criativa','Edição completa','Cortes para redes','Thumbnail + arte'];
+  const entregaveis1100 = ['Direção criativa dedicada ao projeto','Apoio de produção para organização da plateia','Espaço extra / Lobby para catering e networking','Camarim exclusivo para convidados','Até 20 lugares para plateia','Captação com até 5 câmeras Sony 4K','Câmera + microfone dedicados para captação da plateia','Open bar de bebidas não alcoólicas (refrigerantes, sucos, café cápsula e coado)'];
   const taxa = parseInt(p.taxa) || 800;
   const entregaveis = taxa === 630 ? entregaveis630 : taxa === 1100 ? entregaveis1100 : entregaveis800;
 
@@ -2190,7 +2189,7 @@ function _renderPropostaHistorico(p) {
 
   const entregaveis800 = ['4 câmeras Sony 4K com lente prime','Microfones Shure/TASCAM','Switcher ATEM ISO','Iluminação cinema','Equipe completa','Open bar + coffee break','Internet dedicada'];
   const entregaveis630 = ['Studio B 180m²','4 câmeras Sony 4K','Áudio Rodecaster Pro 2','Equipe completa','Open bar'];
-  const entregaveis1100 = ['Tudo do Profissional','Direção criativa','Edição completa','Cortes para redes','Thumbnail + arte'];
+  const entregaveis1100 = ['Direção criativa dedicada ao projeto','Apoio de produção para organização da plateia','Espaço extra / Lobby para catering e networking','Camarim exclusivo para convidados','Até 20 lugares para plateia','Captação com até 5 câmeras Sony 4K','Câmera + microfone dedicados para captação da plateia','Open bar de bebidas não alcoólicas (refrigerantes, sucos, café cápsula e coado)'];
   const listaEntregaveis = taxa === 630 ? entregaveis630 : taxa === 1100 ? entregaveis1100 : entregaveis800;
 
   let listaFinal = [...listaEntregaveis];
