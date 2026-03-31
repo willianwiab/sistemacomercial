@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -462,15 +463,49 @@ function backupImportar(input) {
   @media print {
     nav { display: none !important; }
     .section { display: none !important; }
-    #proposta { display: block !important; padding-top: 10px; }
+    #proposta { display: block !important; padding-top: 0 !important; }
     .proposta-form { display: none !important; }
     #price-preview { display: none !important; }
     .section-eyebrow { display: none !important; }
     h1.section-title { display: none !important; }
     .section-sub { display: none !important; }
     .btn-print, .btn-gerar { display: none !important; }
-    body { background: #0a0a0a !important; }
+    #proposta-output { display: block !important; }
+    body { background: #0a0a0a !important; margin: 0 !important; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    /* Compactar para 1 página */
+    .proposta-header { padding: 14px 20px 12px !important; }
+    .proposta-header::before { display: none !important; }
+    .proposta-titulo { font-size: 1.4rem !important; margin-bottom: 2px !important; }
+    .proposta-meta { font-size: 0.65rem !important; }
+    .proposta-body { padding: 14px 20px !important; }
+    .proposta-footer { padding: 8px 20px !important; }
+    .prop-section { margin-bottom: 10px !important; }
+    .prop-section-title { font-size: 0.7rem !important; margin-bottom: 6px !important; padding-bottom: 3px !important; }
+    .prop-text { font-size: 0.72rem !important; line-height: 1.5 !important; }
+    .prop-grid { gap: 6px !important; }
+    .prop-card { padding: 7px 10px !important; }
+    .prop-card-label { font-size: 0.55rem !important; }
+    .prop-card-value { font-size: 0.8rem !important; }
+    .prop-entregaveis li { font-size: 0.7rem !important; padding: 4px 0 !important; }
+    .investimento-box { padding: 10px 16px !important; }
+    .inv-valor { font-size: 1.8rem !important; }
+    .inv-label { font-size: 0.65rem !important; }
+    .inv-detalhe { font-size: 0.65rem !important; }
+    .inv-badge { font-size: 0.65rem !important; padding: 6px 10px !important; }
+    .proposta-footer-brand { font-size: 0.9rem !important; }
+    .proposta-footer-contact { font-size: 0.65rem !important; }
+
+    /* Evitar quebras ruins */
+    .prop-section { break-inside: avoid; page-break-inside: avoid; }
+    .prop-entregaveis { break-inside: avoid; page-break-inside: avoid; }
+    .investimento-box { break-inside: avoid; page-break-inside: avoid; }
+    .proposta-footer { break-inside: avoid; page-break-inside: avoid; }
+
+    /* Header logo menor */
+    .proposta-header img { width: 44px !important; height: 44px !important; }
+    .proposta-header > div > div > div > div:first-child { font-size: 1rem !important; }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
