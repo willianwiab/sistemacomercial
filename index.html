@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -511,6 +510,103 @@ function backupImportar(input) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
+
+<!-- ═══════════ TELA DE LOGIN ═══════════ -->
+<div id="login-screen" style="position:fixed;inset:0;background:#0a0a0a;z-index:9999;display:flex;align-items:center;justify-content:center;padding:2rem">
+  <div style="width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:2.5rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:6px;color:#f8f8f8;line-height:1">WEN<span style="color:#84CC16">.</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:3px;color:#555;text-transform:uppercase;margin-top:6px">Sistema Comercial</div>
+    </div>
+    <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:2rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:#84CC16;margin-bottom:1.5rem;text-align:center">ACESSO RESTRITO</div>
+      <div style="display:grid;gap:1rem">
+        <div>
+          <label style="display:block;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:6px;font-family:'DM Mono',monospace">Usuário</label>
+          <input type="text" id="login-user" placeholder="usuário" autocomplete="username"
+            style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;color:#f8f8f8;font-family:'DM Sans',sans-serif;font-size:0.95rem;padding:12px 14px;outline:none;transition:border 0.2s"
+            onfocus="this.style.borderColor='#84CC16'" onblur="this.style.borderColor='#333'"
+            onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()" />
+        </div>
+        <div>
+          <label style="display:block;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:6px;font-family:'DM Mono',monospace">Senha</label>
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+            style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;color:#f8f8f8;font-family:'DM Sans',sans-serif;font-size:0.95rem;padding:12px 14px;outline:none;transition:border 0.2s"
+            onfocus="this.style.borderColor='#84CC16'" onblur="this.style.borderColor='#333'"
+            onkeydown="if(event.key==='Enter')tentarLogin()" />
+        </div>
+        <div id="login-erro" style="display:none;background:rgba(192,39,45,0.1);border:1px solid rgba(192,39,45,0.3);border-radius:6px;padding:8px 12px;font-size:0.78rem;color:#f87171;font-family:'DM Mono',monospace;text-align:center">
+          Usuário ou senha incorretos
+        </div>
+        <button onclick="tentarLogin()"
+          style="background:#84CC16;color:#0a0a0a;border:none;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;padding:14px;border-radius:8px;cursor:pointer;transition:all 0.2s;margin-top:4px"
+          onmouseover="this.style.background='#a3e635'" onmouseout="this.style.background='#84CC16'">
+          ENTRAR
+        </button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;font-family:'DM Mono',monospace;font-size:0.58rem;color:#333;letter-spacing:1px">
+      WEN PRODUTORA © 2025
+    </div>
+  </div>
+</div>
+
+<script>
+const _USUARIOS = {
+  'willianwiab': 'wen140909',
+  'rauldoria':   'wen140909'
+};
+let _loginAttempts = 0;
+
+function tentarLogin() {
+  const user = (document.getElementById('login-user').value || '').trim().toLowerCase();
+  const pass = (document.getElementById('login-pass').value || '').trim();
+  const erro = document.getElementById('login-erro');
+
+  if (_USUARIOS[user] && _USUARIOS[user] === pass) {
+    sessionStorage.setItem('wen_auth', btoa(user + ':' + Date.now()));
+    document.getElementById('login-screen').style.display = 'none';
+    erro.style.display = 'none';
+    _loginAttempts = 0;
+    iniciarApp();
+  } else {
+    _loginAttempts++;
+    erro.style.display = 'block';
+    const box = document.querySelector('#login-screen > div > div:nth-child(2)');
+    box.style.animation = 'none';
+    setTimeout(() => { box.style.animation = 'shake 0.4s ease'; }, 10);
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+  }
+}
+
+// Verificar sessão existente
+(function() {
+  const auth = sessionStorage.getItem('wen_auth');
+  if (auth) {
+    try {
+      const decoded = atob(auth);
+      const [user] = decoded.split(':');
+      if (_USUARIOS[user]) {
+        document.getElementById('login-screen').style.display = 'none';
+        // Sessão válida — carregar dados
+        window.addEventListener('load', () => iniciarApp());
+      }
+    } catch(e) { sessionStorage.removeItem('wen_auth'); }
+  }
+  setTimeout(() => { document.getElementById('login-user')?.focus(); }, 100);
+})();
+</script>
+
+<style>
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+</style>
 
 <nav>
   <div class="nav-logo">WEN <span>·</span> COMERCIAL</div>
@@ -2861,11 +2957,16 @@ document.addEventListener('DOMContentLoaded', () => {
   atualizarBadge(); atualizarBadgeClientes(); atualizarBadgeCRM(); renderClientes();
 });
 window.addEventListener('load', () => {
+  // fbCarregarTudo é chamado pelo login — ver função iniciarApp()
+});
+
+function iniciarApp() {
   fbCarregarTudo().then(() => {
     if (typeof renderDashboard === 'function') renderDashboard();
     if (typeof carregarMetaHoras === 'function') carregarMetaHoras();
+    atualizarBadge(); atualizarBadgeClientes(); atualizarBadgeCRM(); renderClientes();
   });
-});
+}
 </script>
 
 
