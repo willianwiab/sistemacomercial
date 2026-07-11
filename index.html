@@ -325,6 +325,14 @@ function backupImportar(input) {
   .hist-empty-sub { font-size: 0.88rem; color: var(--cinza-claro); line-height: 1.6; }
   .hist-empty-sub strong { color: var(--verde-wen); }
 
+  .crm-alerta-box { background: rgba(255,194,14,0.06); border: 1px solid #FFC20E44; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; }
+  .crm-alerta-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 2px; color: #FFC20E; }
+  .crm-alerta-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid #FFC20E22; cursor: pointer; }
+  .crm-alerta-item:last-child { border-bottom: none; }
+  .crm-alerta-item:hover { opacity: 0.8; }
+  .crm-alerta-cliente { font-size: 0.85rem; color: #eee; font-weight: 600; }
+  .crm-alerta-meta { font-size: 0.68rem; color: #999; font-family: 'DM Mono', monospace; }
+  .crm-alerta-dias { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: #FFC20E; flex-shrink: 0; }
   .crm-nego-box { background: rgba(132,204,22,0.04); border: 1px solid rgba(132,204,22,0.15); border-radius: 8px; padding: 1rem; }
   .crm-nego-resultado { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding: 8px 12px; background: rgba(132,204,22,0.08); border-radius: 6px; }
   .crm-nego-label { font-size: 0.65rem; color: #888; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
@@ -556,6 +564,11 @@ const _USUARIOS = {
   'willianwiab': 'wen140909',
   'rauldoria':   'wen140909'
 };
+const _USUARIOS_NOMES = {
+  'willianwiab': 'Willian',
+  'rauldoria':   'Raul'
+};
+let usuarioAtual = null;
 let _loginAttempts = 0;
 
 function tentarLogin() {
@@ -565,6 +578,7 @@ function tentarLogin() {
 
   if (_USUARIOS[user] && _USUARIOS[user] === pass) {
     sessionStorage.setItem('wen_auth', btoa(user + ':' + Date.now()));
+    usuarioAtual = _USUARIOS_NOMES[user] || user;
     document.getElementById('login-screen').style.display = 'none';
     erro.style.display = 'none';
     _loginAttempts = 0;
@@ -588,6 +602,7 @@ function tentarLogin() {
       const decoded = atob(auth);
       const [user] = decoded.split(':');
       if (_USUARIOS[user]) {
+        usuarioAtual = _USUARIOS_NOMES[user] || user;
         document.getElementById('login-screen').style.display = 'none';
         // Sessão válida — carregar dados
         window.addEventListener('load', () => iniciarApp());
@@ -1029,6 +1044,7 @@ function tentarLogin() {
     <p class="section-eyebrow">Pipeline Comercial</p>
     <h1 class="section-title">CRM —<br><span>KANBAN</span></h1>
     <p class="section-sub">Acompanhe o status de cada proposta. Cards em amarelo = lembrete de 3+ dias sem resposta.</p>
+    <div id="crm-alerta-resumo" style="display:none"></div>
     <div style="margin-bottom:1.2rem">
       <div class="hist-search-bar" style="max-width:360px">
         <span class="hist-search-icon">📱</span>
@@ -1087,6 +1103,7 @@ function tentarLogin() {
             <div style="font-size:0.65rem;color:#888;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Proposta</div>
             <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="crm-edit-label">—</div>
           </div>
+          <button onclick="duplicarProposta(document.getElementById('crm-edit-ref').value)" style="background:rgba(123,45,139,0.08);border:1px solid rgba(123,45,139,0.25);color:#b366c9;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:1px;padding:6px 12px;border-radius:5px;cursor:pointer;white-space:nowrap;flex-shrink:0;margin-right:6px">⧉ DUPLICAR</button>
           <button onclick="toggleResumoCRM()" id="btn-resumo-crm" style="background:rgba(132,204,22,0.08);border:1px solid rgba(132,204,22,0.25);color:#84CC16;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:1px;padding:6px 12px;border-radius:5px;cursor:pointer;white-space:nowrap;flex-shrink:0">▼ VER PROPOSTA</button>
         </div>
         <div class="form-group"><label>Status</label>
@@ -1170,6 +1187,9 @@ function tentarLogin() {
       <div class="hist-stat"><span class="hist-stat-num" id="stat-total">0</span><span class="hist-stat-label">Propostas</span></div>
       <div class="hist-stat"><span class="hist-stat-num" id="stat-valor">R$ 0</span><span class="hist-stat-label">Volume total</span></div>
       <div class="hist-stat"><span class="hist-stat-num" id="stat-media">R$ 0</span><span class="hist-stat-label">Ticket médio / hora</span></div>
+    </div>
+    <div style="text-align:right;margin-bottom:1rem">
+      <button class="btn-print" style="margin:0" onclick="exportarHistoricoCSV()">⬇ Exportar CSV</button>
     </div>
     <div id="hist-lista"></div>
     <div id="hist-empty" style="display:none">
@@ -1255,8 +1275,29 @@ function tentarLogin() {
       <div id="wpp-preview" style="background:#202c33;border-radius:8px 8px 8px 0;padding:1rem 1.2rem;max-width:90%;white-space:pre-wrap;font-size:0.82rem;line-height:1.6;color:#e9edef;font-family:'DM Sans',sans-serif">—</div>
     </div>
     <div style="padding:1.2rem 1.5rem;display:flex;gap:10px;border-top:1px solid #1e1e1e">
-      <button id="btn-copiar-wpp" onclick="copiarWpp()" style="flex:1;background:#25D366;color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;padding:12px;border-radius:8px;cursor:pointer">✓ COPIAR TEXTO</button>
+      <button id="btn-enviar-wpp" onclick="enviarWhatsAppDireto()" style="flex:1.2;background:#128C7E;color:#fff;border:none;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;padding:12px;border-radius:8px;cursor:pointer">📤 ENVIAR DIRETO</button>
+      <button id="btn-copiar-wpp" onclick="copiarWpp()" style="flex:1;background:#25D366;color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;padding:12px;border-radius:8px;cursor:pointer">✓ COPIAR</button>
       <button onclick="document.getElementById('modal-wpp').style.display='none'" style="background:transparent;border:1px solid #333;color:#888;font-family:'DM Sans',sans-serif;font-size:0.8rem;padding:12px 20px;border-radius:8px;cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR LIMPAR HISTÓRICO -->
+<div id="modal-confirma-limpar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:999;padding:2rem;overflow-y:auto">
+  <div style="max-width:420px;margin:4rem auto;background:#111;border:1px solid #C0272D55;border-radius:14px;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#2a0a0a,#0a0a0a);border-bottom:3px solid #C0272D;padding:1.5rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#f87171">⚠ APAGAR TODO O HISTÓRICO</div>
+    </div>
+    <div style="padding:1.5rem;display:grid;gap:1rem">
+      <p style="font-size:0.85rem;color:#ccc;line-height:1.6">Essa ação apaga <strong>todas as propostas</strong> do histórico permanentemente. Não pode ser desfeita.</p>
+      <div class="form-group" style="margin:0">
+        <label>Digite <strong style="color:#f87171">APAGAR</strong> para confirmar</label>
+        <input type="text" id="confirma-limpar-input" placeholder="APAGAR" oninput="_validarConfirmaLimpar()" autocomplete="off" />
+      </div>
+    </div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid #1e1e1e;display:flex;gap:10px">
+      <button id="btn-confirma-limpar" onclick="_executarLimparTudo()" disabled style="flex:1;background:#3a1414;color:#a55;border:none;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;padding:12px;border-radius:6px;cursor:not-allowed;transition:all 0.2s">🗑 APAGAR TUDO</button>
+      <button onclick="document.getElementById('modal-confirma-limpar').style.display='none'" style="background:transparent;border:1px solid #333;color:#888;padding:12px 20px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1280,6 +1321,7 @@ let descontoDiariasAtual = 10;
 let _edicaoAberta = false;
 let valorEdicaoEp = 400;
 let _wppTexto = '';
+let _wppCelular = '';
 let _crmValorOriginal = 0;
 
 const MIN_HORAS = 2;
@@ -1508,16 +1550,30 @@ async function copiarWpp() {
     await navigator.clipboard.writeText(_wppTexto);
     const btn = document.getElementById('btn-copiar-wpp');
     btn.textContent = '✓ COPIADO!'; btn.style.background = '#128C7E';
-    setTimeout(() => { btn.textContent = '✓ COPIAR TEXTO'; btn.style.background = '#25D366'; }, 2000);
+    setTimeout(() => { btn.textContent = '✓ COPIAR'; btn.style.background = '#25D366'; }, 2000);
   } catch(e) {
     const ta = document.createElement('textarea'); ta.value = _wppTexto;
     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
     const btn = document.getElementById('btn-copiar-wpp'); btn.textContent = '✓ COPIADO!';
-    setTimeout(() => { btn.textContent = '✓ COPIAR TEXTO'; }, 2000);
+    setTimeout(() => { btn.textContent = '✓ COPIAR'; }, 2000);
   }
+}
+function enviarWhatsAppDireto() {
+  if (!_wppTexto) { mostrarToast('Gere uma proposta primeiro.', '#f44336'); return; }
+  const tel = (_wppCelular || '').replace(/\D/g, '');
+  if (!tel) { mostrarToast('Sem número de celular nessa proposta.', '#f44336'); return; }
+  const numero = tel.length <= 11 ? '55' + tel : tel;
+  const url = 'https://wa.me/' + numero + '?text=' + encodeURIComponent(_wppTexto);
+  window.open(url, '_blank');
 }
 
 function gerarProposta(reabrir = false) {
+  const clienteInput = document.getElementById('f-cliente');
+  if (!clienteInput.value.trim()) {
+    mostrarToast('Por favor preencha o nome do cliente na proposta.', '#f44336');
+    clienteInput.focus();
+    return;
+  }
   const celularInput = document.getElementById('f-celular');
   if (!celularInput.value.trim()) {
     mostrarToast('Raul Por favor adicionar numero de telefone na proposta.', '#f44336');
@@ -1595,7 +1651,8 @@ function gerarProposta(reabrir = false) {
       taxa, total: totalComEdicao, totalStudio: c.total, modo: modoAtual, desconto: c.desconto || 0,
       edicaoQtd: getEdicaoInfo().qtd, edicaoValorEp: getEdicaoInfo().valEd, edicaoTotal: getEdicaoInfo().total,
       numDiarias: numDiariasAtual, horasDiaria: horasDiariaAtual, descontoDiarias: descontoDiariasAtual,
-      pacoteHoras: pacoteHorasAtual, descontoPH: descontoHorasAtual
+      pacoteHoras: pacoteHorasAtual, descontoPH: descontoHorasAtual,
+      criadoPor: usuarioAtual || ''
     });
     const celularProposta = document.getElementById('f-celular').value.trim();
     const jaExiste = clientes.find(x => x.nome.toLowerCase() === cliente.toLowerCase() || (celularProposta && x.tel && x.tel.replace(/\D/g,'') === celularProposta.replace(/\D/g,'')));
@@ -1610,6 +1667,7 @@ function gerarProposta(reabrir = false) {
   document.getElementById('proposta-output').scrollIntoView({ behavior: 'smooth' });
 
   const _ed = getEdicaoInfo();
+  _wppCelular = document.getElementById('f-celular').value.trim();
   _wppTexto = gerarTextoWhatsApp({
     cliente, responsavel, tipo, studioLabel, duracaoLabel,
     totalFmt: _ed.total > 0 ? 'R$ ' + (c.total + _ed.total).toLocaleString('pt-BR') : 'R$ ' + c.total.toLocaleString('pt-BR'),
@@ -1865,7 +1923,8 @@ function salvarStatusCRM() {
     nota: document.getElementById('crm-nota').value,
     descontoPct: pctDesc,
     valorNegociado: pctDesc > 0 && _crmValorOriginal > 0 ? Math.round(_crmValorOriginal * (1 - pctDesc/100)) : 0,
-    dataUpdate: new Date().toLocaleDateString('pt-BR')
+    dataUpdate: new Date().toLocaleDateString('pt-BR'),
+    atualizadoPor: usuarioAtual || ''
   };
   salvarCRM();
   document.getElementById('modal-crm').style.display = 'none';
@@ -1894,7 +1953,26 @@ function calcularNovoValorCRM() {
     resultado.style.display = 'flex'; hint.style.display = 'none';
   } else { resultado.style.display = 'none'; hint.style.display = 'block'; }
 }
+function renderCrmAlertaResumo() {
+  const box = document.getElementById('crm-alerta-resumo');
+  if (!box) return;
+  const alertas = historicoPropostas
+    .filter(p => getCRMStatus(p.ref).status === 'pendente' && diasDesde(p.data) >= 3)
+    .sort((a,b) => diasDesde(b.data) - diasDesde(a.data));
+  if (alertas.length === 0) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.style.display = 'block';
+  const top = alertas.slice(0, 5);
+  box.innerHTML = `<div class="crm-alerta-box">
+    <div class="crm-alerta-header">⚠️ ${alertas.length} PROPOSTA${alertas.length>1?'S':''} PENDENTE${alertas.length>1?'S':''} HÁ 3+ DIAS SEM RESPOSTA</div>
+    ${top.map(p => `<div class="crm-alerta-item" onclick="abrirModalCRM('${p.ref}')">
+      <div><div class="crm-alerta-cliente">${p.cliente}${p.responsavel?' · '+p.responsavel:''}</div><div class="crm-alerta-meta">${p.ref} · ${p.studio} · R$ ${Number(p.total).toLocaleString('pt-BR')}</div></div>
+      <div class="crm-alerta-dias">${diasDesde(p.data)}d</div>
+    </div>`).join('')}
+    ${alertas.length > top.length ? `<div style="font-size:0.68rem;color:#777;font-family:'DM Mono',monospace;margin-top:8px">+ ${alertas.length - top.length} outra(s) — filtre por "Pendente" no quadro abaixo</div>` : ''}
+  </div>`;
+}
 function renderKanban() {
+  renderCrmAlertaResumo();
   const colunas = ['pendente','ganho','perdido','semresposta'];
   const listas = { pendente:[], ganho:[], perdido:[], semresposta:[] };
   historicoPropostas.forEach(p => {
@@ -1931,10 +2009,11 @@ function renderKanban() {
         </div>
         <div class="kcard-cliente">${p.cliente}${p.responsavel?' · '+p.responsavel:''}</div>
         <div class="kcard-meta">${p.studio} · ${p.tipo}</div>
-        <div class="kcard-meta" style="color:#555;margin-top:2px;font-family:'DM Mono',monospace;font-size:0.65rem">📅 ${p.data}${p.data && diasDesde(p.data) > 0 ? ' · ' + diasDesde(p.data) + 'd atrás' : ''}</div>
+        <div class="kcard-meta" style="color:#555;margin-top:2px;font-family:'DM Mono',monospace;font-size:0.65rem">📅 ${p.data}${p.data && diasDesde(p.data) > 0 ? ' · ' + diasDesde(p.data) + 'd atrás' : ''}${p.criadoPor ? ' · por ' + p.criadoPor : ''}</div>
         <div class="kcard-valor">R$ ${Number(p.total).toLocaleString('pt-BR')}${crm.descontoPct>0?`<span style="font-size:0.7rem;color:#FFC20E;margin-left:6px;font-family:'DM Mono',monospace">-${crm.descontoPct}% → R$ ${Number(crm.valorNegociado).toLocaleString('pt-BR')}</span>`:''}</div>
         ${alerta?`<div class="kcard-alerta-badge">⚠️ ${dias}d sem resposta</div>`:''}
         ${crm.status==='perdido'&&crm.motivo?`<div class="kcard-motivo">${MOTIVOS_MAP[crm.motivo]||crm.motivo}</div>`:''}
+        ${crm.atualizadoPor?`<div class="kcard-meta" style="color:#555;font-size:0.62rem;margin-top:2px">↻ atualizado por ${crm.atualizadoPor}</div>`:''}
         ${crm.nota?`<div class="kcard-meta" style="margin-top:4px;color:#666;font-style:italic">"${crm.nota.substring(0,60)}${crm.nota.length>60?'…':''}"</div>`:''}
         ${remessaHTML}
         </div>
@@ -2024,7 +2103,7 @@ function moverCardStatus(ref, novoStatus) {
     return;
   }
 
-  crmData[ref] = { ...crm, status: novoStatus, dataUpdate: new Date().toLocaleDateString('pt-BR') };
+  crmData[ref] = { ...crm, status: novoStatus, dataUpdate: new Date().toLocaleDateString('pt-BR'), atualizadoPor: usuarioAtual || '' };
   salvarCRM(); renderKanban(); atualizarBadgeCRM();
   const labels = { pendente:'PENDENTE', ganho:'GANHO', semresposta:'SEM RESPOSTA' };
   const cors = { pendente:'#FFC20E', ganho:'#8DC63F', semresposta:'#888' };
@@ -2089,7 +2168,7 @@ function onColDrop(e, novoStatus) {
   }
 
   // Outros status: move direto
-  crmData[ref] = { ...crm, status: novoStatus, dataUpdate: new Date().toLocaleDateString('pt-BR') };
+  crmData[ref] = { ...crm, status: novoStatus, dataUpdate: new Date().toLocaleDateString('pt-BR'), atualizadoPor: usuarioAtual || '' };
   salvarCRM();
   renderKanban();
   atualizarBadgeCRM();
@@ -2172,19 +2251,41 @@ function atualizarStats(lista) {
   document.getElementById('stat-valor').textContent = 'R$ ' + volume.toLocaleString('pt-BR');
   document.getElementById('stat-media').textContent = totalHoras > 0 ? 'R$ ' + media.toLocaleString('pt-BR') : '—';
 }
-function renderHistorico() {
+function _getHistoricoFiltrado() {
   const termo = (document.getElementById('hist-input')?.value || '').toLowerCase().trim();
+  return historicoPropostas.filter(p => {
+    const matchTermo = !termo || p.ref.toLowerCase().includes(termo) || p.cliente.toLowerCase().includes(termo) || (p.responsavel||'').toLowerCase().includes(termo) || p.tipo.toLowerCase().includes(termo);
+    const matchFiltro = filtroAtivo === 'todos' || p.studio.includes(filtroAtivo) || p.tipo.includes(filtroAtivo);
+    return matchTermo && matchFiltro;
+  });
+}
+function exportarHistoricoCSV() {
+  const filtradas = _getHistoricoFiltrado();
+  if (filtradas.length === 0) { mostrarToast('Nada para exportar com esse filtro.', '#f44336'); return; }
+  const cols = ['ref','data','cliente','responsavel','celular','tipo','studio','modo','horas','taxa','desconto','edicaoTotal','total','statusCRM','criadoPor'];
+  const header = ['Referência','Data','Cliente','Responsável','Celular','Tipo','Estúdio','Modo','Horas','Taxa/h','Desconto %','Edição R$','Total R$','Status CRM','Criado por'];
+  const linhas = filtradas.map(p => {
+    const crm = getCRMStatus(p.ref);
+    const vals = [p.ref, p.data, p.cliente, p.responsavel||'', p.celular||'', p.tipo, p.studio, p.modo||'hora', p.horas||0, p.taxa||0, p.desconto||0, p.edicaoTotal||0, p.total||0, CRM_LABELS[crm.status]||crm.status, p.criadoPor||''];
+    return vals.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(';');
+  });
+  const csv = '﻿' + header.join(';') + '\n' + linhas.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'historico-propostas-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  mostrarToast('CSV exportado — ' + filtradas.length + ' proposta(s)', '#4caf50');
+}
+function renderHistorico() {
   const lista = document.getElementById('hist-lista');
   const empty = document.getElementById('hist-empty');
   const zero = document.getElementById('hist-zero');
   const footer = document.getElementById('hist-footer');
   if (historicoPropostas.length === 0) { lista.innerHTML = ''; empty.style.display='none'; zero.style.display='block'; footer.style.display='none'; atualizarStats([]); return; }
   zero.style.display = 'none'; footer.style.display = 'block';
-  let filtradas = historicoPropostas.filter(p => {
-    const matchTermo = !termo || p.ref.toLowerCase().includes(termo) || p.cliente.toLowerCase().includes(termo) || (p.responsavel||'').toLowerCase().includes(termo) || p.tipo.toLowerCase().includes(termo);
-    const matchFiltro = filtroAtivo === 'todos' || p.studio.includes(filtroAtivo) || p.tipo.includes(filtroAtivo);
-    return matchTermo && matchFiltro;
-  });
+  let filtradas = _getHistoricoFiltrado();
   atualizarStats(filtradas);
   if (filtradas.length === 0) { lista.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
@@ -2196,6 +2297,7 @@ function renderHistorico() {
         <div class="hist-data">${p.data}</div>
         <div class="hist-actions">
           <button class="hist-btn-reabrir" onclick="reabrirProposta('${p.ref}')">↗ Ver proposta</button>
+          <button class="hist-btn-reabrir" style="background:rgba(123,45,139,0.1);border-color:rgba(123,45,139,0.3);color:#b366c9" onclick="duplicarProposta('${p.ref}')">⧉ Duplicar</button>
           <button class="hist-btn-del" onclick="deletarProposta(${idx})">✕</button>
         </div>
       </div>
@@ -2207,6 +2309,7 @@ function renderHistorico() {
           <div class="hist-info-item"><span class="hist-info-label">Estúdio</span><span class="hist-info-val">${p.studio}</span></div>
           <div class="hist-info-item"><span class="hist-info-label">Taxa/hora</span><span class="hist-info-val">R$ ${Number(p.taxa).toLocaleString('pt-BR')}</span></div>
           <div class="hist-info-item"><span class="hist-info-label">Studio</span><span class="hist-info-val">R$ ${Number(p.totalStudio || (Number(p.total) - Number(p.edicaoTotal||0))).toLocaleString('pt-BR')}</span></div>
+          <div class="hist-info-item"><span class="hist-info-label">Criado por</span><span class="hist-info-val">${p.criadoPor || '—'}</span></div>
         </div>
         ${p.edicaoTotal > 0 ? `
         <div style="margin-top:10px;background:#0a1220;border:1px solid #00AEEF33;border-radius:7px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
@@ -2230,60 +2333,73 @@ function renderHistorico() {
 // FIX v1.8 — reabrirProposta
 // Renderiza direto do p.total gravado — não recalcula
 // ══════════════════════════════════════════
+function _preencherFormularioComProposta(p) {
+  document.getElementById('f-cliente').value = p.cliente || '';
+  document.getElementById('f-responsavel').value = p.responsavel || '';
+  document.getElementById('f-tipo').value = p.tipo || 'Podcast Corporativo';
+  document.getElementById('f-celular').value = p.celular || '';
+
+  const taxaValida = [630, 800, 1100];
+  const taxaNum = parseInt(p.taxa);
+  const taxaFinal = taxaValida.includes(taxaNum) ? taxaNum : 800;
+  document.getElementById('f-nivel').value = String(taxaFinal);
+
+  const studioCode = p.studioCode || 'A';
+  document.getElementById('f-studio').value = studioCode;
+  document.querySelectorAll('.studio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === studioCode));
+
+  const modo = p.modo || 'hora';
+  modoAtual = modo;
+  document.getElementById('f-modo').value = modo;
+  document.querySelectorAll('.modo-opt').forEach(b => b.classList.toggle('active', b.dataset.modo === modo));
+  document.getElementById('bloco-hora').style.display = modo === 'hora' ? '' : 'none';
+  document.getElementById('bloco-pacote-horas').style.display = modo === 'pacote-horas' ? '' : 'none';
+  document.getElementById('bloco-pacote-diarias').style.display = modo === 'pacote-diarias' ? '' : 'none';
+
+  if (modo === 'hora') {
+    horasAtual = parseInt(p.horas) || 2;
+    document.getElementById('f-horas-num').textContent = horasAtual;
+    atualizarBadgeFaixa(horasAtual);
+  } else if (modo === 'pacote-horas') {
+    pacoteHorasAtual = parseInt(p.pacoteHoras || p.horas) || 20;
+    descontoHorasAtual = parseInt(p.descontoPH || p.desconto) || 0;
+    document.getElementById('f-ph-num').textContent = pacoteHorasAtual;
+    document.getElementById('f-ph-desc-num').textContent = descontoHorasAtual;
+  } else if (modo === 'pacote-diarias') {
+    descontoDiariasAtual = parseInt(p.descontoDiarias || p.desconto) || 0;
+    if (p.numDiarias && p.horasDiaria) {
+      numDiariasAtual = parseInt(p.numDiarias);
+      horasDiariaAtual = parseInt(p.horasDiaria);
+    } else {
+      const totalH = parseInt(p.horas) || 4;
+      horasDiariaAtual = 4;
+      numDiariasAtual = Math.round(totalH / horasDiariaAtual) || 1;
+    }
+    document.getElementById('f-nd-num').textContent = numDiariasAtual;
+    document.getElementById('f-hd-num').textContent = horasDiariaAtual;
+    document.getElementById('f-dd-num').textContent = descontoDiariasAtual;
+  }
+}
 function reabrirProposta(refOrIdx) {
   const p = typeof refOrIdx === 'string' ? historicoPropostas.find(x => x.ref === refOrIdx) : historicoPropostas[refOrIdx];
   if (!p) return;
   showSection('proposta');
   setTimeout(() => {
-    // Preenche campos do formulário (para contexto visual) mas não usa no cálculo
-    document.getElementById('f-cliente').value = p.cliente || '';
-    document.getElementById('f-responsavel').value = p.responsavel || '';
-    document.getElementById('f-tipo').value = p.tipo || 'Podcast Corporativo';
-    document.getElementById('f-celular').value = p.celular || '';
-
-    const taxaValida = [630, 800, 1100];
-    const taxaNum = parseInt(p.taxa);
-    const taxaFinal = taxaValida.includes(taxaNum) ? taxaNum : 800;
-    document.getElementById('f-nivel').value = String(taxaFinal);
-
-    const studioCode = p.studioCode || 'A';
-    document.getElementById('f-studio').value = studioCode;
-    document.querySelectorAll('.studio-opt').forEach(b => b.classList.toggle('active', b.dataset.val === studioCode));
-
-    const modo = p.modo || 'hora';
-    modoAtual = modo;
-    document.getElementById('f-modo').value = modo;
-    document.querySelectorAll('.modo-opt').forEach(b => b.classList.toggle('active', b.dataset.modo === modo));
-    document.getElementById('bloco-hora').style.display = modo === 'hora' ? '' : 'none';
-    document.getElementById('bloco-pacote-horas').style.display = modo === 'pacote-horas' ? '' : 'none';
-    document.getElementById('bloco-pacote-diarias').style.display = modo === 'pacote-diarias' ? '' : 'none';
-
-    if (modo === 'hora') {
-      horasAtual = parseInt(p.horas) || 2;
-      document.getElementById('f-horas-num').textContent = horasAtual;
-      atualizarBadgeFaixa(horasAtual);
-    } else if (modo === 'pacote-horas') {
-      pacoteHorasAtual = parseInt(p.pacoteHoras || p.horas) || 20;
-      descontoHorasAtual = parseInt(p.descontoPH || p.desconto) || 0;
-      document.getElementById('f-ph-num').textContent = pacoteHorasAtual;
-      document.getElementById('f-ph-desc-num').textContent = descontoHorasAtual;
-    } else if (modo === 'pacote-diarias') {
-      descontoDiariasAtual = parseInt(p.descontoDiarias || p.desconto) || 0;
-      if (p.numDiarias && p.horasDiaria) {
-        numDiariasAtual = parseInt(p.numDiarias);
-        horasDiariaAtual = parseInt(p.horasDiaria);
-      } else {
-        const totalH = parseInt(p.horas) || 4;
-        horasDiariaAtual = 4;
-        numDiariasAtual = Math.round(totalH / horasDiariaAtual) || 1;
-      }
-      document.getElementById('f-nd-num').textContent = numDiariasAtual;
-      document.getElementById('f-hd-num').textContent = horasDiariaAtual;
-      document.getElementById('f-dd-num').textContent = descontoDiariasAtual;
-    }
-
+    _preencherFormularioComProposta(p);
     // Renderiza proposta com valor exatamente como foi gravado (não recalcula)
     _renderPropostaHistorico(p);
+  }, 150);
+}
+function duplicarProposta(ref) {
+  const p = historicoPropostas.find(x => x.ref === ref);
+  if (!p) return;
+  document.getElementById('modal-crm').style.display = 'none';
+  showSection('proposta');
+  setTimeout(() => {
+    _preencherFormularioComProposta(p);
+    document.getElementById('proposta-output').style.display = 'none';
+    atualizarPreco();
+    mostrarToast('✎ Proposta duplicada de ' + ref + ' — revise e clique em GERAR PROPOSTA', '#7B2D8B');
   }, 150);
 }
 
@@ -2365,6 +2481,7 @@ function _renderPropostaHistorico(p) {
   document.getElementById('proposta-output').scrollIntoView({ behavior: 'smooth' });
 
   // WhatsApp com valor gravado
+  _wppCelular = p.celular || '';
   _wppTexto = gerarTextoWhatsApp({
     cliente: p.cliente, responsavel: p.responsavel, tipo: p.tipo, studioLabel, duracaoLabel,
     totalFmt: 'R$ ' + totalGravado.toLocaleString('pt-BR'),
@@ -2389,11 +2506,26 @@ async function deletarProposta(idx) {
   atualizarBadge(); renderHistorico();
   mostrarToast('Proposta excluída', '#C0272D');
 }
-async function confirmarLimparTudo() {
-  if (!confirm('Tem certeza? Isso vai apagar TODAS as propostas do histórico.')) return;
+function confirmarLimparTudo() {
+  document.getElementById('confirma-limpar-input').value = '';
+  _validarConfirmaLimpar();
+  document.getElementById('modal-confirma-limpar').style.display = 'block';
+}
+function _validarConfirmaLimpar() {
+  const ok = document.getElementById('confirma-limpar-input').value.trim().toUpperCase() === 'APAGAR';
+  const btn = document.getElementById('btn-confirma-limpar');
+  btn.disabled = !ok;
+  btn.style.background = ok ? '#C0272D' : '#3a1414';
+  btn.style.color = ok ? '#fff' : '#a55';
+  btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+}
+async function _executarLimparTudo() {
+  if (document.getElementById('confirma-limpar-input').value.trim().toUpperCase() !== 'APAGAR') return;
   historicoPropostas = [];
   await salvarHistorico();
   atualizarBadge(); renderHistorico();
+  document.getElementById('modal-confirma-limpar').style.display = 'none';
+  mostrarToast('Histórico apagado', '#C0272D');
 }
 
 // ══════════════════════════════════════════
