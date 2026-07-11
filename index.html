@@ -333,6 +333,15 @@ function backupImportar(input) {
   .crm-alerta-cliente { font-size: 0.85rem; color: #eee; font-weight: 600; }
   .crm-alerta-meta { font-size: 0.68rem; color: #999; font-family: 'DM Mono', monospace; }
   .crm-alerta-dias { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: #FFC20E; flex-shrink: 0; }
+  .gate-item { background: #161616; border: 1px solid #2a2a2a; border-radius: 10px; padding: 1rem 1.2rem; }
+  .gate-item-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .gate-item-cliente { font-size: 0.95rem; font-weight: 600; color: #eee; }
+  .gate-item-meta { font-size: 0.7rem; color: #888; font-family: 'DM Mono', monospace; margin-top: 2px; }
+  .gate-item-dias { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: #FFC20E; letter-spacing: 1px; flex-shrink: 0; }
+  .gate-item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .gate-btn { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 600; padding: 8px 14px; border-radius: 6px; cursor: pointer; border: 1px solid; flex: 1; text-align: center; }
+  .gate-btn-kommo { background: rgba(0,174,239,0.1); border-color: rgba(0,174,239,0.35); color: #00AEEF; }
+  .gate-btn-crm { background: rgba(132,204,22,0.08); border-color: rgba(132,204,22,0.25); color: #84CC16; }
   .crm-nego-box { background: rgba(132,204,22,0.04); border: 1px solid rgba(132,204,22,0.15); border-radius: 8px; padding: 1rem; }
   .crm-nego-resultado { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding: 8px 12px; background: rgba(132,204,22,0.08); border-radius: 6px; }
   .crm-nego-label { font-size: 0.65rem; color: #888; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
@@ -623,6 +632,18 @@ function tentarLogin() {
 }
 </style>
 
+<!-- GATE OBRIGATÓRIO DE FOLLOW-UP -->
+<div id="gate-followup" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.97);z-index:950;padding:2rem;overflow-y:auto">
+  <div style="max-width:640px;margin:3rem auto">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:2rem;margin-bottom:8px">🔒</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;color:#FFC20E">FOLLOW-UP OBRIGATÓRIO</div>
+      <div style="font-size:0.85rem;color:#999;margin-top:8px;line-height:1.6">Propostas enviadas nos últimos 7 dias que ainda estão <strong>pendentes</strong>.<br>Confirme o follow-up no Kommo ou atualize o status de cada uma para continuar.</div>
+    </div>
+    <div id="gate-followup-lista" style="display:grid;gap:10px"></div>
+  </div>
+</div>
+
 <nav>
   <div class="nav-logo">WEN <span>·</span> COMERCIAL</div>
   <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#84CC16;letter-spacing:1px;margin-left:8px;padding:2px 6px;border:1px solid #84CC1644;border-radius:3px;align-self:center">v1.9</div>
@@ -630,6 +651,7 @@ function tentarLogin() {
     <button class="nav-tab active" onclick="showSection('proposta',this)">Proposta</button>
     <button class="nav-tab" id="tab-clientes" onclick="showSection('clientes',this)">Clientes</button>
     <button class="nav-tab" id="tab-crm" onclick="showSection('crm',this)">CRM</button>
+    <button class="nav-tab" id="tab-revisao" onclick="showSection('revisao',this)">Revisão</button>
     <button class="nav-tab" id="tab-historico" onclick="showSection('historico',this)">Histórico</button>
     <button class="nav-tab" id="tab-dashboard" onclick="showSection('dashboard',this)">📊 Dashboard</button>
 
@@ -1129,6 +1151,13 @@ function tentarLogin() {
             <textarea id="crm-obs-motivo" style="min-height:60px" placeholder="Detalhe o motivo se quiser..."></textarea>
           </div>
         </div>
+        <div id="crm-followup-box" style="background:rgba(0,174,239,0.04);border:1px solid rgba(0,174,239,0.18);border-radius:8px;padding:1rem;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:0.65rem;color:#00AEEF;letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px">📞 Follow-up no Kommo</div>
+            <div id="crm-followup-status" style="font-size:0.78rem;color:#888">Ainda não confirmado</div>
+          </div>
+          <button id="btn-followup-kommo" onclick="confirmarFollowupKommo(document.getElementById('crm-edit-ref').value)" style="background:rgba(0,174,239,0.1);border:1px solid rgba(0,174,239,0.35);color:#00AEEF;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;white-space:nowrap">✅ Já enviei no Kommo</button>
+        </div>
         <div class="crm-nego-box">
           <div style="font-size:0.65rem;color:#84CC16;letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px">💰 Desconto de Negociação</div>
           <div style="display:flex;align-items:center;gap:10px">
@@ -1159,6 +1188,23 @@ function tentarLogin() {
       <div style="padding:1rem 1.5rem;border-top:1px solid #1e1e1e;display:flex;gap:10px">
         <button onclick="salvarStatusCRM()" class="btn-gerar" style="flex:1;padding:12px;font-size:0.9rem">SALVAR STATUS</button>
         <button onclick="document.getElementById('modal-crm').style.display='none'" style="background:transparent;border:1px solid #333;color:#888;padding:12px 20px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SEÇÃO: REVISÃO (backlog antigo) ═══════════ -->
+<section id="revisao" class="section">
+  <div class="container">
+    <p class="section-eyebrow">Backlog Antigo</p>
+    <h1 class="section-title">PROPOSTAS PARA<br><span>REVISÃO</span></h1>
+    <p class="section-sub">Pendentes há mais de 7 dias. Não bloqueiam ninguém — revise com calma e decida: reativar, marcar como perdido ou arquivar.</p>
+    <div id="revisao-lista" style="display:grid;gap:10px"></div>
+    <div id="revisao-zero" style="display:none">
+      <div class="hist-empty-box">
+        <div class="hist-empty-icon">✅</div>
+        <div class="hist-empty-title">Nada para revisar</div>
+        <div class="hist-empty-sub">Todas as propostas pendentes têm menos de 7 dias.</div>
       </div>
     </div>
   </div>
@@ -1393,6 +1439,7 @@ function showSection(id, el) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (id === 'historico') renderHistorico();
   if (id === 'crm') renderKanban();
+  if (id === 'revisao') renderRevisao();
   if (id === 'clientes') renderClientes();
   if (id === 'dashboard') { renderDashboard(); if (!_metaCache) carregarMetaHoras(); else renderMetaWidget(_metaCache); }
 }
@@ -1795,7 +1842,7 @@ function renderClientes() {
 }
 
 // ── CRM ──
-function salvarCRM() { fbSalvarDoc('comercial_crm', 'dados', { dados: crmData }).catch(e => console.error(e)); }
+function salvarCRM() { fbSalvarDoc('comercial_crm', 'dados', { dados: crmData }).catch(e => console.error(e)); renderGateFollowup(); atualizarBadgeRevisao(); if (document.getElementById('revisao')?.classList.contains('active')) renderRevisao(); }
 function getCRMStatus(ref) { return crmData[ref] || { status: 'pendente', motivo: '', obsMotivo: '', nota: '', dataUpdate: null }; }
 function toggleMotivoLoss() { document.getElementById('crm-motivo-bloco').style.display = document.getElementById('crm-status').value === 'perdido' ? 'grid' : 'none'; }
 
@@ -1910,13 +1957,36 @@ function abrirModalCRM(ref) {
   document.getElementById('crm-nota').value = crm.nota || '';
   document.getElementById('crm-desconto-pct').value = crm.descontoPct || '';
   calcularNovoValorCRM(); toggleMotivoLoss();
+  _atualizarFollowupUI(crm);
   document.getElementById('modal-crm').style.display = 'block';
+}
+function _atualizarFollowupUI(crm) {
+  const statusEl = document.getElementById('crm-followup-status');
+  const btnEl = document.getElementById('btn-followup-kommo');
+  if (crm.followupKommoConfirmadoEm) {
+    statusEl.innerHTML = `✅ Confirmado por <strong>${crm.followupKommoConfirmadoPor || '—'}</strong> em ${crm.followupKommoConfirmadoEm}`;
+    statusEl.style.color = '#84CC16';
+    btnEl.textContent = '↻ Confirmar novamente';
+  } else {
+    statusEl.textContent = 'Ainda não confirmado';
+    statusEl.style.color = '#888';
+    btnEl.textContent = '✅ Já enviei no Kommo';
+  }
+}
+function confirmarFollowupKommo(ref) {
+  if (!ref) return;
+  const crm = getCRMStatus(ref);
+  crmData[ref] = { ...crm, followupKommoConfirmadoEm: new Date().toLocaleString('pt-BR'), followupKommoConfirmadoPor: usuarioAtual || '' };
+  salvarCRM();
+  _atualizarFollowupUI(crmData[ref]);
+  mostrarToast('✅ Follow-up confirmado no Kommo', '#00AEEF');
 }
 function salvarStatusCRM() {
   const ref = document.getElementById('crm-edit-ref').value;
   const status = document.getElementById('crm-status').value;
   const pctDesc = parseFloat(document.getElementById('crm-desconto-pct').value) || 0;
   crmData[ref] = {
+    ...getCRMStatus(ref),
     status,
     motivo: document.getElementById('crm-motivo').value,
     obsMotivo: document.getElementById('crm-obs-motivo').value,
@@ -1952,6 +2022,63 @@ function calcularNovoValorCRM() {
     document.getElementById('crm-valor-novo').textContent = 'R$ ' + novoValor.toLocaleString('pt-BR');
     resultado.style.display = 'flex'; hint.style.display = 'none';
   } else { resultado.style.display = 'none'; hint.style.display = 'block'; }
+}
+function renderGateFollowup() {
+  const overlay = document.getElementById('gate-followup');
+  if (!overlay) return;
+  if (usuarioAtual !== 'Raul') { overlay.style.display = 'none'; return; }
+  const pendentesSemana = historicoPropostas.filter(p => {
+    const crm = getCRMStatus(p.ref);
+    return crm.status === 'pendente' && diasDesde(p.data) <= 7 && !crm.followupKommoConfirmadoEm;
+  }).sort((a,b) => diasDesde(b.data) - diasDesde(a.data));
+  if (pendentesSemana.length === 0) { overlay.style.display = 'none'; return; }
+  overlay.style.display = 'block';
+  document.getElementById('gate-followup-lista').innerHTML = pendentesSemana.map(p => `
+    <div class="gate-item">
+      <div class="gate-item-top">
+        <div>
+          <div class="gate-item-cliente">${p.cliente}${p.responsavel?' · '+p.responsavel:''}</div>
+          <div class="gate-item-meta">${p.ref} · ${p.studio} · R$ ${Number(p.total).toLocaleString('pt-BR')}${p.celular?' · 📱 '+p.celular:''}</div>
+        </div>
+        <div class="gate-item-dias">${diasDesde(p.data)}d</div>
+      </div>
+      <div class="gate-item-actions">
+        <button class="gate-btn gate-btn-kommo" onclick="confirmarFollowupKommo('${p.ref}')">✅ Já enviei no Kommo</button>
+        <button class="gate-btn gate-btn-crm" onclick="abrirModalCRM('${p.ref}')">Abrir CRM →</button>
+      </div>
+    </div>`).join('');
+}
+function renderRevisao() {
+  const lista = document.getElementById('revisao-lista');
+  const zero = document.getElementById('revisao-zero');
+  const antigas = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'pendente' && diasDesde(p.data) > 7)
+    .sort((a,b) => diasDesde(b.data) - diasDesde(a.data));
+  if (antigas.length === 0) { lista.innerHTML = ''; zero.style.display = 'block'; return; }
+  zero.style.display = 'none';
+  lista.innerHTML = antigas.map(p => {
+    const crm = getCRMStatus(p.ref);
+    return `<div class="gate-item">
+      <div class="gate-item-top">
+        <div>
+          <div class="gate-item-cliente">${p.cliente}${p.responsavel?' · '+p.responsavel:''}</div>
+          <div class="gate-item-meta">${p.ref} · ${p.studio} · R$ ${Number(p.total).toLocaleString('pt-BR')}${p.celular?' · 📱 '+p.celular:''}${p.criadoPor?' · criado por '+p.criadoPor:''}</div>
+          ${crm.followupKommoConfirmadoEm ? `<div class="gate-item-meta" style="color:#00AEEF">✓ follow-up confirmado por ${crm.followupKommoConfirmadoPor||'—'} em ${crm.followupKommoConfirmadoEm}</div>` : ''}
+        </div>
+        <div class="gate-item-dias">${diasDesde(p.data)}d</div>
+      </div>
+      <div class="gate-item-actions">
+        <button class="gate-btn gate-btn-kommo" onclick="confirmarFollowupKommo('${p.ref}')">✅ Já enviei no Kommo</button>
+        <button class="gate-btn gate-btn-crm" onclick="abrirModalCRM('${p.ref}')">Abrir CRM →</button>
+        <button class="gate-btn" style="background:rgba(123,45,139,0.08);border-color:rgba(123,45,139,0.25);color:#b366c9" onclick="duplicarProposta('${p.ref}')">⧉ Duplicar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function atualizarBadgeRevisao() {
+  const tab = document.getElementById('tab-revisao');
+  if (!tab) return;
+  const n = historicoPropostas.filter(p => getCRMStatus(p.ref).status === 'pendente' && diasDesde(p.data) > 7).length;
+  tab.textContent = n > 0 ? `Revisão (${n})` : 'Revisão';
 }
 function renderCrmAlertaResumo() {
   const box = document.getElementById('crm-alerta-resumo');
@@ -3102,7 +3229,8 @@ function iniciarApp() {
   fbCarregarTudo().then(() => {
     if (typeof renderDashboard === 'function') renderDashboard();
     if (typeof carregarMetaHoras === 'function') carregarMetaHoras();
-    atualizarBadge(); atualizarBadgeClientes(); atualizarBadgeCRM(); renderClientes();
+    atualizarBadge(); atualizarBadgeClientes(); atualizarBadgeCRM(); atualizarBadgeRevisao(); renderClientes();
+    renderGateFollowup();
   });
 }
 </script>
