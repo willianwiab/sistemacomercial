@@ -1518,6 +1518,12 @@ async function copiarWpp() {
 }
 
 function gerarProposta(reabrir = false) {
+  const celularInput = document.getElementById('f-celular');
+  if (!celularInput.value.trim()) {
+    mostrarToast('Raul Por favor adicionar numero de telefone na proposta.', '#f44336');
+    celularInput.focus();
+    return;
+  }
   const cliente = document.getElementById('f-cliente').value || 'Cliente';
   const responsavel = document.getElementById('f-responsavel').value || '';
   const studio = document.getElementById('f-studio').value;
