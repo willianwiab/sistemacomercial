@@ -846,14 +846,10 @@ function tentarLogin() {
         <div class="form-row">
           <div class="form-group">
             <label>Total de Horas no Pacote</label>
-            <div class="hour-picker">
-              <button type="button" class="hour-btn" onclick="mudarPacoteHoras(-5)">−</button>
-              <div class="hour-display">
-                <span id="f-ph-num" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--verde-wen);line-height:1">20</span>
-                <span class="hour-label">horas/mês</span>
-              </div>
-              <button type="button" class="hour-btn" onclick="mudarPacoteHoras(5)">+</button>
-            </div>
+            <input type="number" id="f-ph-input" value="20" min="1" max="500" step="1" inputmode="numeric"
+              oninput="setPacoteHoras(this.value)"
+              style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;color:var(--verde-wen);font-family:'Bebas Neue',sans-serif;font-size:1.4rem;text-align:center;padding:12px 10px;letter-spacing:1px;line-height:1" />
+            <span class="hour-label" style="display:block;text-align:center;margin-top:4px">horas/mês (digite qualquer valor)</span>
           </div>
           <div class="form-group">
             <label>Desconto do Pacote (%)</label>
@@ -981,6 +977,10 @@ function tentarLogin() {
           <div class="prop-section" id="out-personalizado" style="display:none">
             <div class="prop-section-title">Considerações Adicionais</div>
             <p class="prop-text" id="out-obs">—</p>
+          </div>
+          <div class="prop-section">
+            <div class="prop-section-title">Regra Fixada</div>
+            <p class="prop-text" style="font-size:0.72rem;line-height:1.6;color:#8a8a8a">O período de locação considera o tempo total de uso do estúdio, incluindo preparação, ajustes técnicos, organização do cenário, testes, gravação e finalização. Como referência, em uma locação de 2 horas, estimamos em média até 1h20 de gravação efetiva, considerando o tempo necessário para setup inicial e encerramento da operação. Caso o tempo contratado seja ultrapassado, poderá ser cobrado um valor adicional proporcional à hora contratada, sempre mediante disponibilidade de agenda. Se houver outro cliente na sequência, pode não ser possível estender o período de locação. Durante toda a locação, está incluso o suporte técnico completo, com equipe especializada operando os equipamentos para garantir qualidade de imagem e áudio. Além disso, nossa recepção conta com frigobar abastecido com bebidas não alcoólicas, café e chás à vontade, sem custo adicional. Nossa equipe também está preparada para adaptar a estrutura conforme as necessidades específicas do projeto, avaliando formato, dinâmica, quantidade de participantes, cenário, operação técnica e demais demandas da produção.</p>
           </div>
           <div class="prop-section">
             <div class="prop-section-title">Investimento</div>
@@ -1407,6 +1407,60 @@ const MOTIVOS_MAP = {
   budget: '💰 Sem budget aprovado', outro: '📝 Outro motivo'
 };
 
+// ── "O que está incluído" por estúdio (A / B / Ambos) — Studio A é o padrão ──
+const ENTREGAVEIS_STUDIO = {
+  A: [
+    'Studio A — 100m² refinado, Haddock Lobo',
+    '4 câmeras Sony 4K com lente prime',
+    'Microfones Shure MV7 + Mixcast 4 TASCAM',
+    'Switcher ATEM Extreme ISO 8 canais',
+    'Iluminação linha cinema (Amaran 200D)',
+    'Equipe completa: Diretor + Operador + Produtor',
+    'Frigobar + Open bar + Buffet coffee break (4m)',
+    'Link dedicado de internet',
+    '⚡ Redundância elétrica disponível como contratação à parte'
+  ],
+  B: [
+    'Studio B — 180m² com cenografia modular configurável',
+    '4 câmeras Sony 4K com lente prime',
+    'Áudio Rodecaster Pro 2 + microfones Rode PodMic',
+    'Switcher ATEM Extreme 8 canais',
+    'Equipe completa: Diretor + Operador + Assistente',
+    'Open bar (café, chá, suco, refrigerante)',
+    'Camarim estruturado e recepção planejada'
+  ],
+  AB: [
+    'Studio A (100m²) + Studio B (180m²) — 280m² para projeto completo',
+    '4 câmeras Sony 4K com lente prime',
+    'Microfones Shure MV7 + Mixcast 4 TASCAM',
+    'Áudio Rodecaster Pro 2 + microfones Rode PodMic',
+    'Switcher ATEM Extreme ISO 8 canais',
+    'Iluminação linha cinema (Amaran 200D)',
+    'Cenografia modular configurável (Studio B)',
+    'Equipe completa: Diretor + Operador + Produtor + Assistente',
+    'Frigobar + Open bar + Buffet coffee break',
+    'Camarim estruturado e recepção planejada',
+    'Link dedicado de internet',
+    '⚡ Redundância elétrica disponível como contratação à parte'
+  ]
+};
+// Extras do formato Premium com Plateia — anexados sobre a base do estúdio quando a taxa é 1100
+const ENTREGAVEIS_PLATEIA = [
+  'Direção criativa dedicada ao projeto',
+  'Apoio de produção para organização da plateia',
+  'Espaço extra / Lobby para catering e networking',
+  'Camarim exclusivo para convidados',
+  'Até 20 lugares para plateia',
+  'Captação com até 5 câmeras Sony 4K',
+  'Câmera + microfone dedicados para captação da plateia',
+  'Open bar de bebidas não alcoólicas (refrigerantes, sucos, café cápsula e coado)'
+];
+function montarEntregaveis(studioCode, premium) {
+  let base = [...(ENTREGAVEIS_STUDIO[studioCode] || ENTREGAVEIS_STUDIO.A)];
+  if (premium) base = base.concat(['─── PREMIUM · EVENTO COM PLATEIA ───', ...ENTREGAVEIS_PLATEIA]);
+  return base;
+}
+
 function getMinHoras() { const n = parseInt(document.getElementById('f-nivel').value); return n === 630 ? 3 : n === 1100 ? 4 : 2; }
 function getTaxaBase() {
   const manual = document.getElementById('f-manual-toggle').checked;
@@ -1483,7 +1537,8 @@ function onNivelChange() {
   if (horasAtual < minH) { horasAtual = minH; animarNumero('f-horas-num', horasAtual); }
   atualizarRegua(); atualizarBadgeFaixa(horasAtual); atualizarPreco();
 }
-function mudarPacoteHoras(delta) { pacoteHorasAtual = Math.max(5, Math.min(200, pacoteHorasAtual + delta)); animarNumero('f-ph-num', pacoteHorasAtual); atualizarPreco(); }
+// Pacote de horas agora é digitado manualmente (qualquer valor), não mais por múltiplos de 5.
+function setPacoteHoras(val) { const n = parseInt(val); pacoteHorasAtual = (!isNaN(n) && n > 0) ? n : 0; atualizarPreco(); }
 function mudarDescontoPH(delta) { descontoHorasAtual = Math.max(0, Math.min(50, descontoHorasAtual + delta)); animarNumero('f-ph-desc-num', descontoHorasAtual); atualizarPreco(); }
 function mudarHorasDiaria(delta) { horasDiariaAtual = Math.max(2, Math.min(24, horasDiariaAtual + delta)); animarNumero('f-hd-num', horasDiariaAtual); atualizarPreco(); }
 function mudarNumDiarias(delta) { numDiariasAtual = Math.max(2, Math.min(30, numDiariasAtual + delta)); animarNumero('f-nd-num', numDiariasAtual); atualizarPreco(); }
@@ -1670,14 +1725,9 @@ function gerarProposta(reabrir = false) {
     ${c.desconto > 0 ? `<div class="prop-card" style="border-color:rgba(132,204,22,0.3)"><div class="prop-card-label">Desconto Aplicado</div><div class="prop-card-value" style="color:var(--verde-wen)">−${c.desconto}% (−R$ ${c.economia.toLocaleString('pt-BR')})</div></div>` : ''}
   `;
 
-  const entregaveis = {
-    630: ['Studio B — 180m² com cenografia modular configurável','4 câmeras Sony 4K com lente prime','Áudio Rodecaster Pro 2 + microfones Rode PodMic','Switcher ATEM Extreme 8 canais','Equipe completa: Diretor + Operador + Assistente','Open bar (café, chá, suco, refrigerante)','Camarim estruturado e recepção planejada'],
-    800: ['Studio A — 100m² refinado, Haddock Lobo','4 câmeras Sony 4K com lente prime','Microfones Shure MV7 + Mixcast 4 TASCAM','Switcher ATEM Extreme ISO 8 canais','Iluminação linha cinema (Amaran 200D)','Equipe completa: Diretor + Operador + Produtor','Frigobar + Open bar + Buffet coffee break (4m)','Link dedicado de internet','⚡ Redundância elétrica disponível como contratação à parte'],
-    1100: ['Direção criativa dedicada ao projeto','Apoio de produção para organização da plateia','Espaço extra / Lobby para catering e networking','Camarim exclusivo para convidados','Até 20 lugares para plateia','Captação com até 5 câmeras Sony 4K','Câmera + microfone dedicados para captação da plateia','Open bar de bebidas não alcoólicas (refrigerantes, sucos, café cápsula e coado)']
-  };
-
   const ed = getEdicaoInfo();
-  let listaEntregaveis = [...(entregaveis[nivelRef] || entregaveis[800])];
+  // "O que está incluído" agora acompanha o ESTÚDIO selecionado (A/B/Ambos), Studio A como padrão.
+  let listaEntregaveis = montarEntregaveis(studio, nivelRef === 1100);
   if (ed.total > 0) listaEntregaveis = listaEntregaveis.concat([
     '─── ADD-ON: EDIÇÃO + REELS ───',
     `${ed.qtd} episódio${ed.qtd>1?'s':''} — edição completa de vídeo com vinhetas, créditos e GC`,
@@ -1694,10 +1744,8 @@ function gerarProposta(reabrir = false) {
   let badgeHTML = `Válido por 7 dias<br>Sinal: 50% para reserva<br>Restante no dia`;
   if (c.desconto > 0) badgeHTML = `✦ Desconto de ${c.desconto}% aplicado<br>Economia: R$ ${c.economia.toLocaleString('pt-BR')}<br>Sinal: 50% para reserva`;
   document.getElementById('out-badge').innerHTML = badgeHTML;
-  if (necessidade && necessidade.trim()) {
-    document.getElementById('out-personalizado').style.display = 'block';
-    document.getElementById('out-obs').textContent = `Considerando o contexto compartilhado ("${necessidade}"), nossa equipe está preparada para adaptar a estrutura às necessidades específicas do projeto.`;
-  } else document.getElementById('out-personalizado').style.display = 'none';
+  // Considerações Adicionais fica vazio por padrão — as condições de locação viraram a "Regra Fixada" logo abaixo.
+  document.getElementById('out-personalizado').style.display = 'none';
 
   if (!reabrir) {
     registrarProposta({
@@ -2499,7 +2547,7 @@ function _preencherFormularioComProposta(p) {
   } else if (modo === 'pacote-horas') {
     pacoteHorasAtual = parseInt(p.pacoteHoras || p.horas) || 20;
     descontoHorasAtual = parseInt(p.descontoPH || p.desconto) || 0;
-    document.getElementById('f-ph-num').textContent = pacoteHorasAtual;
+    document.getElementById('f-ph-input').value = pacoteHorasAtual;
     document.getElementById('f-ph-desc-num').textContent = descontoHorasAtual;
   } else if (modo === 'pacote-diarias') {
     descontoDiariasAtual = parseInt(p.descontoDiarias || p.desconto) || 0;
@@ -2576,12 +2624,8 @@ function _renderPropostaHistorico(p) {
     ${descPct > 0 ? `<div class="prop-card" style="border-color:rgba(132,204,22,0.3)"><div class="prop-card-label">Desconto Aplicado</div><div class="prop-card-value" style="color:var(--verde-wen)">−${descPct}%</div></div>` : ''}
   `;
 
-  const entregaveis800 = ['4 câmeras Sony 4K com lente prime','Microfones Shure/TASCAM','Switcher ATEM ISO','Iluminação cinema','Equipe completa','Open bar + coffee break','Internet dedicada'];
-  const entregaveis630 = ['Studio B 180m²','4 câmeras Sony 4K','Áudio Rodecaster Pro 2','Equipe completa','Open bar'];
-  const entregaveis1100 = ['Direção criativa dedicada ao projeto','Apoio de produção para organização da plateia','Espaço extra / Lobby para catering e networking','Camarim exclusivo para convidados','Até 20 lugares para plateia','Captação com até 5 câmeras Sony 4K','Câmera + microfone dedicados para captação da plateia','Open bar de bebidas não alcoólicas (refrigerantes, sucos, café cápsula e coado)'];
-  const listaEntregaveis = taxa === 630 ? entregaveis630 : taxa === 1100 ? entregaveis1100 : entregaveis800;
-
-  let listaFinal = [...listaEntregaveis];
+  // "O que está incluído" acompanha o ESTÚDIO da proposta (A/B/Ambos), Studio A como padrão.
+  let listaFinal = montarEntregaveis(p.studioCode || 'A', taxa === 1100);
   if (p.edicaoTotal > 0) {
     listaFinal = listaFinal.concat([
       '─── ADD-ON: EDIÇÃO + REELS ───',
